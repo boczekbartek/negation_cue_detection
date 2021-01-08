@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<annotations textSource="PBS-NewsHour_20161202T134302.txt">
+    <annotation>
+        <mention id="EHOST_Instance_2061" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="334" end="336" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 08:30:42 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2061">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2062" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="435" end="437" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 08:30:50 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2062">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2063" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="548" end="551" />
+        <spannedText>n't</spannedText>
+        <creationDate>Fri Jan 08 08:30:58 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2063">
+        <mentionClass id="NegCue">n't</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2064" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="937" end="939" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 08:31:19 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2064">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2065" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="1007" end="1010" />
+        <spannedText>not</spannedText>
+        <creationDate>Fri Jan 08 08:32:43 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2065">
+        <mentionClass id="NegCue">not</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2066" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="1033" end="1036" />
+        <spannedText>not</spannedText>
+        <creationDate>Fri Jan 08 08:32:46 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2066">
+        <mentionClass id="NegCue">not</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2067" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="1265" end="1272" />
+        <spannedText>opt out</spannedText>
+        <creationDate>Fri Jan 08 08:33:24 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2067">
+        <mentionClass id="NegCue">opt out</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2068" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="2090" end="2093" />
+        <spannedText>non</spannedText>
+        <creationDate>Fri Jan 08 08:34:18 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2068">
+        <mentionClass id="NegCue">non</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2069" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="2895" end="2898" />
+        <spannedText>n't</spannedText>
+        <creationDate>Fri Jan 08 08:34:55 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2069">
+        <mentionClass id="NegCue">n't</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2070" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="4325" end="4328" />
+        <spannedText>n't</spannedText>
+        <creationDate>Fri Jan 08 08:35:57 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2070">
+        <mentionClass id="NegCue">n't</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2071" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="4463" end="4466" />
+        <spannedText>n't</spannedText>
+        <creationDate>Fri Jan 08 08:36:05 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2071">
+        <mentionClass id="NegCue">n't</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2072" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="4559" end="4564" />
+        <spannedText>never</spannedText>
+        <creationDate>Fri Jan 08 08:36:12 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2072">
+        <mentionClass id="NegCue">never</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2073" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="5003" end="5006" />
+        <spannedText>n't</spannedText>
+        <creationDate>Fri Jan 08 08:36:42 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2073">
+        <mentionClass id="NegCue">n't</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2074" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="680" end="683" />
+        <spannedText>not</spannedText>
+        <creationDate>Fri Jan 08 08:54:45 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2074">
+        <mentionClass id="NegCue">not</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2075" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="1442" end="1444" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 08:55:13 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2075">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2076" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="1900" end="1903" />
+        <spannedText>n't</spannedText>
+        <creationDate>Fri Jan 08 08:55:22 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2076">
+        <mentionClass id="NegCue">n't</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2077" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="2950" end="2953" />
+        <spannedText>n't</spannedText>
+        <creationDate>Fri Jan 08 08:55:37 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2077">
+        <mentionClass id="NegCue">n't</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2078" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="3677" end="3679" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 08:55:50 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2078">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2079" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="5540" end="5542" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 08:56:16 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2079">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_2080" />
+        <annotator id="eHOST_2010">Merel</annotator>
+        <span start="6446" end="6448" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 08:56:20 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_2080">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <eHOST_Adjudication_Status version="1.0">
+        <Adjudication_Selected_Annotators version="1.0" />
+        <Adjudication_Selected_Classes version="1.0" />
+        <Adjudication_Others>
+            <CHECK_OVERLAPPED_SPANS>false</CHECK_OVERLAPPED_SPANS>
+            <CHECK_ATTRIBUTES>false</CHECK_ATTRIBUTES>
+            <CHECK_RELATIONSHIP>false</CHECK_RELATIONSHIP>
+            <CHECK_CLASS>false</CHECK_CLASS>
+            <CHECK_COMMENT>false</CHECK_COMMENT>
+        </Adjudication_Others>
+    </eHOST_Adjudication_Status>
+</annotations>
+
