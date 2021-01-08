@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<annotations textSource="petmd-com_20170209T130913.txt">
+    <annotation>
+        <mention id="EHOST_Instance_5365" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="173" end="175" />
+        <spannedText>no</spannedText>
+        <creationDate>Fri Jan 08 02:29:12 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5365">
+        <mentionClass id="NegCue">no</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5366" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="418" end="421" />
+        <spannedText>not</spannedText>
+        <creationDate>Fri Jan 08 02:29:24 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5366">
+        <mentionClass id="NegCue">not</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5367" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="1253" end="1255" />
+        <spannedText>no</spannedText>
+        <creationDate>Fri Jan 08 02:31:09 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5367">
+        <mentionClass id="NegCue">no</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5368" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="2160" end="2163" />
+        <spannedText>n't</spannedText>
+        <creationDate>Fri Jan 08 02:31:59 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5368">
+        <mentionClass id="NegCue">n't</mentionClass>
+    </classMention>
+    <eHOST_Adjudication_Status version="1.0">
+        <Adjudication_Selected_Annotators version="1.0" />
+        <Adjudication_Selected_Classes version="1.0" />
+        <Adjudication_Others>
+            <CHECK_OVERLAPPED_SPANS>false</CHECK_OVERLAPPED_SPANS>
+            <CHECK_ATTRIBUTES>false</CHECK_ATTRIBUTES>
+            <CHECK_RELATIONSHIP>false</CHECK_RELATIONSHIP>
+            <CHECK_CLASS>false</CHECK_CLASS>
+            <CHECK_COMMENT>false</CHECK_COMMENT>
+        </Adjudication_Others>
+    </eHOST_Adjudication_Status>
+</annotations>
+

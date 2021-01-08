@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<annotations textSource="PBS-NewsHour_20161202T134302.txt">
+    <annotation>
+        <mention id="EHOST_Instance_5320" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="334" end="336" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 01:36:10 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5320">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5321" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="435" end="437" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 01:36:31 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5321">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5322" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="548" end="551" />
+        <spannedText>n’t</spannedText>
+        <creationDate>Fri Jan 08 01:36:51 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5322">
+        <mentionClass id="NegCue">n’t</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5323" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="680" end="683" />
+        <spannedText>not</spannedText>
+        <creationDate>Fri Jan 08 01:37:02 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5323">
+        <mentionClass id="NegCue">not</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5324" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="937" end="939" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 01:37:28 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5324">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5325" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="1007" end="1010" />
+        <spannedText>not</spannedText>
+        <creationDate>Fri Jan 08 01:37:35 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5325">
+        <mentionClass id="NegCue">not</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5326" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="1033" end="1036" />
+        <spannedText>not</spannedText>
+        <creationDate>Fri Jan 08 01:37:39 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5326">
+        <mentionClass id="NegCue">not</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5327" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="1900" end="1903" />
+        <spannedText>n’t</spannedText>
+        <creationDate>Fri Jan 08 01:38:47 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5327">
+        <mentionClass id="NegCue">n’t</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5328" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="1442" end="1444" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 01:45:06 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5328">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5329" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="2895" end="2898" />
+        <spannedText>n’t</spannedText>
+        <creationDate>Fri Jan 08 01:47:30 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5329">
+        <mentionClass id="NegCue">n’t</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5330" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="2950" end="2953" />
+        <spannedText>n’t</spannedText>
+        <creationDate>Fri Jan 08 01:47:40 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5330">
+        <mentionClass id="NegCue">n’t</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5331" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="3677" end="3679" />
+        <spannedText>un</spannedText>
+        <creationDate>Fri Jan 08 01:49:19 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5331">
+        <mentionClass id="NegCue">un</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5332" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="4325" end="4328" />
+        <spannedText>n’t</spannedText>
+        <creationDate>Fri Jan 08 01:51:14 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5332">
+        <mentionClass id="NegCue">n’t</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5333" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="4463" end="4466" />
+        <spannedText>n’t</spannedText>
+        <creationDate>Fri Jan 08 01:51:33 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5333">
+        <mentionClass id="NegCue">n’t</mentionClass>
+    </classMention>
+    <annotation>
+        <mention id="EHOST_Instance_5334" />
+        <annotator id="01">Bartłomiej</annotator>
+        <span start="5003" end="5006" />
+        <spannedText>n’t</spannedText>
+        <creationDate>Fri Jan 08 01:52:07 CET 2021</creationDate>
+    </annotation>
+    <classMention id="EHOST_Instance_5334">
+        <mentionClass id="NegCue">n’t</mentionClass>
+    </classMention>
+    <eHOST_Adjudication_Status version="1.0">
+        <Adjudication_Selected_Annotators version="1.0" />
+        <Adjudication_Selected_Classes version="1.0" />
+        <Adjudication_Others>
+            <CHECK_OVERLAPPED_SPANS>false</CHECK_OVERLAPPED_SPANS>
+            <CHECK_ATTRIBUTES>false</CHECK_ATTRIBUTES>
+            <CHECK_RELATIONSHIP>false</CHECK_RELATIONSHIP>
+            <CHECK_CLASS>false</CHECK_CLASS>
+            <CHECK_COMMENT>false</CHECK_COMMENT>
+        </Adjudication_Others>
+    </eHOST_Adjudication_Status>
+</annotations>
+
