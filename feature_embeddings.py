@@ -1,17 +1,18 @@
 """
 Words are split on part-word things and the labels of these part words are
-duplicated.
+duplicated (bert pre-processing)
 
-In the tutorial they use data with pos tags, but these tags are not included
-in the eventual input_ids, tags, or masks
+Creates input_ids, tags, and masks
+todo: option that pre-processes lexicals too
 
-code adapted from
+Code adapted from
 https://www.depends-on-the-definition.com/named-entity-recognition-with-bert/
 and
 https://github.com/abhishekkrthakur/bert-entity-extraction
+
 """
-from transformers import BertForTokenClassification, BertTokenizer, BertModel
-from torch.utils.data import TensorDataset, RandomSampler, DataLoader, SequentialSampler
+from transformers import BertTokenizer
+from torch.utils.data import TensorDataset
 import pandas as pd
 import torch
 
@@ -38,7 +39,7 @@ class SentenceGetter(object):
 
 # prepare sentences and labels for bert
 class BertPrep():
-    def __init__(self, path, max_sent_len=128): #75
+    def __init__(self, path, max_sent_len=128): # what would be a good max length
         # chose smallest pre-trained bert (uncased)
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
         self.data = self.load_data(path)
@@ -86,7 +87,6 @@ class BertPrep():
         getter = SentenceGetter(self.data)
         sentences = [[s[0] for s in sent] for sent in getter.sentences]
         labels = [[s[1] for s in sent] for sent in getter.sentences]
-        # todo extract lexicals
 
         # tokenize the words + duplicate the labels --> list of tuples with (sent tokens, labels)
         tokenized_texts_and_labels = [
@@ -104,63 +104,46 @@ class BertPrep():
 
         # cut/pad the sequences & the bert markers
         for i in range(len(all_ids)):
-            # code from https://github.com/abhishekkrthakur/bert-entity-extraction
             # todo: hmm this is just cutting off everything after max length
 
             # cut until max length, minus 2 to make room for bert markers
             ids = all_ids[i][:self.max_len - 2]
-            # target_pos = target_pos[:config.MAX_LEN - 2]
             target_tag = all_target_tag[i][:self.max_len - 2]
 
             # bert markers and paddings for the rest
             ids = [101] + ids + [102]
-            # target_pos = [...] + target_pos + [...]
             target_tag = [self.tag2idx["PAD"]] + target_tag + [self.tag2idx["PAD"]]
-            # mask = [1] * len(ids)
-            token_type_ids = [0] * len(ids)
 
-            # pad shorted sequences
+            # pad shortened sequences
             padding_len = self.max_len - len(ids)
             all_ids[i] = ids + ([0] * padding_len)
-            # attention_mask = mask + ([0] * padding_len)
-            # token_type_ids = token_type_ids + ([...] * padding_len)
-            # target_pos[i] = target_pos + ([...] * padding_len)
             all_target_tag[i] = target_tag + ([self.tag2idx["PAD"]] * padding_len)
-        ################
-
-        # todo: add for other lexical things too
 
         # creating the attention mask
         attention_mask = [[float(i != 0.0) for i in ii] for ii in all_ids]
 
-        # turn to tensors
-        all_ids = torch.tensor(all_ids)
-        all_target_tag = torch.tensor(all_target_tag)
-        attention_mask = torch.tensor(attention_mask)
-        # pos
-        # lemma
-        # stem
-
-        return all_ids, all_target_tag, attention_mask # + lexicals
-
-
-##############################################
+        return {
+            "ids": torch.tensor(all_ids, dtype=torch.long),
+            "mask": torch.tensor(attention_mask, dtype=torch.long),
+            "target_tag": torch.tensor(all_target_tag, dtype=torch.long),
+            # pos
+            # lemma
+            # stem
+        }
 
 # prep the inputs
 train_prep = BertPrep("data/SEM-2012-SharedTask-CD-SCO-training-simple.txt")
-tr_inputs, tr_tags, tr_masks = train_prep.prep_bert_inputs()
+train_dataset = train_prep.prep_bert_inputs()
 
 dev_prep = BertPrep("data/SEM-2012-SharedTask-CD-SCO-dev-simple.txt")
-dev_inputs, dev_tags, dev_masks = dev_prep.prep_bert_inputs()
+dev_dataset = dev_prep.prep_bert_inputs()
 
 # put data into dataloader
 bs = 32
-train_data = TensorDataset(tr_inputs, tr_masks, tr_tags)
-train_sampler = RandomSampler(train_data)
-train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=bs)
+train_data_loader = torch.utils.data.DataLoader(
+    train_dataset, batch_size=bs, num_workers=4
+)
 
-valid_data = TensorDataset(dev_inputs, dev_masks, dev_tags)
-valid_sampler = SequentialSampler(valid_data)
-valid_dataloader = DataLoader(valid_data, sampler=valid_sampler, batch_size=bs)
-
-# todo: OR add POS tags to the input input_ids OR extra input per instance aside from embedding??
+dev_data_loader = torch.utils.data.DataLoader(
+        dev_dataset, batch_size=bs, num_workers=1
+)
