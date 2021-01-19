@@ -22,9 +22,10 @@ class SentenceGetter(object):
         self.data = data
         self.empty = False
         # todo: add other lexical features (w, t, pos, lemma, stem)
-        agg_func = lambda s: [(w, t) for w, t in zip(s["token"].values.tolist(),
-                                                     s["tag"].values.tolist())]
-        self.grouped = self.data.groupby("n_sent").apply(agg_func)
+        agg_func = lambda s: [
+            (w, t) for w, t in zip(s["token"].values.tolist(), s["tag"].values.tolist())
+        ]
+        self.grouped = self.data.groupby("sent_id").apply(agg_func)
         self.sentences = [s for s in self.grouped]
 
     def get_next(self):
@@ -40,16 +41,17 @@ class SentenceGetter(object):
 class BertPrep(object):
     def __init__(self, path, max_sent_len=128):  # what would be a good max length
         # chose smallest pre-trained bert (uncased)
-        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.data = self.load_data(path)
         self.tag2idx = self.create_tag_dict()
         self.max_len = max_sent_len
 
     @staticmethod
     def load_data(path):
-        data = pd.read_csv(path,
-                           delimiter="\t",
-                           names=["corpus", "n_sent", "n_word", "token", "tag"])
+        data = pd.read_csv(
+            path, delimiter="\t", names=["corpus", "n_sent", "n_word", "token", "tag"]
+        )
+        data["sent_id"] = data["corpus"] + data["n_sent"].astype(str)
         return data
 
     def create_tag_dict(self):
@@ -87,11 +89,20 @@ class BertPrep(object):
         labels = [[s[1] for s in sent] for sent in getter.sentences]
 
         # tokenize the words + duplicate the labels --> list of tuples with (sent tokens, labels)
-        tokenized_texts, tags = map(list, zip(
-            *[self.tokenize_and_preserve_labels(sent, labs) for sent, labs in zip(sentences, labels)]))
+        tokenized_texts, tags = map(
+            list,
+            zip(
+                *[
+                    self.tokenize_and_preserve_labels(sent, labs)
+                    for sent, labs in zip(sentences, labels)
+                ]
+            ),
+        )
 
         # turn vars to numericals
-        all_ids = [self.tokenizer.convert_tokens_to_ids(sent) for sent in tokenized_texts]
+        all_ids = [
+            self.tokenizer.convert_tokens_to_ids(sent) for sent in tokenized_texts
+        ]
         all_target_tags = [[self.tag2idx.get(tag) for tag in sent] for sent in tags]
 
         # cut/pad the sequences & the bert markers
@@ -99,8 +110,8 @@ class BertPrep(object):
             # todo: hmm this is just cutting off everything after max length
 
             # cut until max length, minus 2 to make room for bert markers
-            ids = all_ids[i][:self.max_len - 2]
-            target_tag = all_target_tags[i][:self.max_len - 2]
+            ids = all_ids[i][: self.max_len - 2]
+            target_tag = all_target_tags[i][: self.max_len - 2]
 
             # bert markers and paddings for the rest
             ids = [101] + ids + [102]
@@ -115,9 +126,9 @@ class BertPrep(object):
         attention_mask = [[float(i != 0.0) for i in ii] for ii in all_ids]
 
         return {
-            'input_ids': all_ids,
-            'attention_mask': attention_mask,
-            'labels': all_target_tags,
+            "input_ids": all_ids,
+            "attention_mask": attention_mask,
+            "labels": all_target_tags,
             # pos
             # lemma
             # stem
