@@ -13,7 +13,6 @@ https://github.com/abhishekkrthakur/bert-entity-extraction
 """
 from transformers import BertTokenizer
 import pandas as pd
-import torch
 
 
 class SentenceGetter(object):
