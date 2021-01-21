@@ -14,7 +14,6 @@ https://github.com/abhishekkrthakur/bert-entity-extraction
 from generate_features import generate_features
 from transformers import BertTokenizer
 import pandas as pd
-import spacy
 
 
 class SentenceGetter(object):
