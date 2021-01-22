@@ -16,6 +16,7 @@ def linguistic_features(text):
     :rtype: strings
     :return: multiple strings containing the lemma, pos-tag, snowball-stem and porter-stem
     """
+    nlp = spacy.load("en_core_web_sm")
     doc=nlp(text)
     token=doc[0]
     return token.lemma_, token.pos_, snow.stem(text), port.stem(text)
@@ -69,10 +70,10 @@ def generate_features(df):
     df['Possible_Prefix'] = df.apply(lambda row: possible_negation_prefix(row['Token_lower']), axis=1)
     df['Possible_Suffix'] = df.apply(lambda row: possible_negation_suffix(row['Token_lower']), axis=1)
     #Adds new columns for the previous and next lemma and pos-tag
-    df['Prev_Lemma'] = df['Lemma'].shift(periods=-1)
-    df['Next_Lemma'] = df['Lemma'].shift(periods=1)
-    df['Prev_POS'] = df['POS'].shift(periods=-1)
-    df['Next_POS'] = df['POS'].shift(periods=1)
+    df['Next_Lemma'] = df['Lemma'].shift(periods=-1)
+    df['Prev_Lemma'] = df['Lemma'].shift(periods=1)
+    df['Next_POS'] = df['POS'].shift(periods=-1)
+    df['Prev_POS'] = df['POS'].shift(periods=1)
     return df
 
 if __name__ == '__main__':
