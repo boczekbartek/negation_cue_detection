@@ -14,6 +14,7 @@ https://github.com/abhishekkrthakur/bert-entity-extraction
 from generate_features import generate_features
 from transformers import BertTokenizer
 import pandas as pd
+import numpy as np
 
 
 class SentenceGetter(object):
@@ -60,7 +61,7 @@ class BertPrep(object):
         # chose smallest pre-trained bert (uncased)
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.data = self.load_data(path)
-        self.tag2idx = self.create_label_dict("tag")
+        self.tag2idx = self.create_label_dict("tag", scale=False)
         self.feature_labels = self.label_lexicals(lexicals)
         self.max_len = max_sent_len
         self.lexicals = lexicals
@@ -96,26 +97,34 @@ class BertPrep(object):
         """
         self.max_len = max([len(sent) for sent in tokenized_texts])
 
-    def create_label_dict(self, feature):
+    def create_label_dict(self, feature, scale:bool):
         """
-        Convert the tags to indices and create dict for conversion
+        Convert the tags to indices and create dict for conversion.
 
         :return:
         """
         values = list(set(self.data[feature].values))
-        values.append("PAD")
-        feat2idx = {t: i for i, t in enumerate(values)}
+        values.insert(0, "PAD")
+
+        if scale:
+            step = np.linspace(0, 1, len(values))
+            feat2idx = {t: step[i] for i, t in enumerate(values)}
+        else:
+            feat2idx = {t: i for i, t in enumerate(values)}
         return feat2idx
 
     def label_lexicals(self, lexicals) -> dict:
         """
         Create value mapping for all features
-        # todo: scale the labels
+        Scales the labels
 
         :return: dict of lexicals, containing dicts of value to numericals
         """
         if lexicals:
-            lex2idx = {feat: self.create_label_dict(feat) for feat in lexicals}
+            lex2idx = {
+                feat: self.create_label_dict(feat, scale=True)
+                for feat in lexicals
+            }
             return lex2idx
 
     def tokenize_and_duplicate_labels(self, aggreg_sentence):
@@ -259,7 +268,7 @@ class BertPrep(object):
                     for lex in all_lexicals[i].keys()
                 }
                 processed_lex.append([
-                    all_lexicals[i][lex] + ([self.feature_labels[lex]["PAD"]] * padding_len)
+                    lex_features[lex] + ([self.feature_labels[lex]["PAD"]] * padding_len)
                     for lex in all_lexicals[i].keys()
                 ])
 
@@ -277,9 +286,6 @@ if __name__ == "__main__":
 
     prep = BertPrep(
         "data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv",
-        ["Token", "Lemma", "SnowballStemmer", "Possible_Prefix", "Possible_Suffix"]
+        ["Lemma", "Possible_Suffix"]
     )
     processed = prep.preprocess_dataset()
-
-    # todo: concat lexicals into the right shape
-    # todo: integrate into main (NegCueDataset & lines in training)
