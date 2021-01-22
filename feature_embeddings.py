@@ -11,8 +11,10 @@ and
 https://github.com/abhishekkrthakur/bert-entity-extraction
 
 """
+# %%
 from generate_features import generate_features
 from transformers import BertTokenizer
+from sklearn.preprocessing import OneHotEncoder
 import pandas as pd
 import numpy as np
 
@@ -61,6 +63,7 @@ class BertPrep(object):
         # chose smallest pre-trained bert (uncased)
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.data = self.load_data(path)
+        self.data = self.data.iloc[0:10]
         self.tag2idx = self.create_label_dict("tag", scale=False)
         self.feature_labels = self.label_lexicals(lexicals)
         self.max_len = max_sent_len
@@ -120,9 +123,15 @@ class BertPrep(object):
 
         :return: dict of lexicals, containing dicts of value to numericals
         """
+        def encode(feat):
+            enc = OneHotEncoder(handle_unknown='ignore', sparse=False)
+            v = prep.data[feat].values.reshape(len(prep.data[feat].values), 1)
+            one_hot = enc.fit_transform(v)
+            return one_hot
+
         if lexicals:
             lex2idx = {
-                feat: self.create_label_dict(feat, scale=True)
+                feat: encode(feat)
                 for feat in lexicals
             }
             return lex2idx
@@ -282,10 +291,20 @@ class BertPrep(object):
             "lexicals": processed_lex
         }
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
+# %%
+prep = BertPrep(
+    "data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv",
+    ["POS"]
+)
+processed = prep.preprocess_dataset()
+    
+# %%
+# %%
 
-    prep = BertPrep(
-        "data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv",
-        ["Lemma", "Possible_Suffix"]
-    )
-    processed = prep.preprocess_dataset()
+# %%
+# %%
+ = enc.transform(v)
+print(one_hot[0:10])
+print(v[0:10])
+# %%
