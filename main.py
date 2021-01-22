@@ -13,14 +13,15 @@ MODEL_NAME = 'neg_cue_detection_model'
 
 
 class BertForNegationCueClassification(BertPreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, config, n_lexicals):
         super().__init__(config)
         self.config = config
         self.num_labels = config.num_labels
 
         self.bert = BertModel.from_pretrained('bert-base-uncased')
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size + 1, config.num_labels)
+        self.classifier = nn.Linear(config.hidden_size + n_lexicals,
+                                    config.num_labels)
 
         self.init_weights()
 
@@ -70,6 +71,14 @@ class NegCueDataset(Dataset):
         self.encodings = dataset['input_ids']
         self.mask = dataset['attention_mask']
         self.labels = dataset['labels']
+        self.lexicals = dataset['lexicals']
+
+    def shape_lexicals(self, idx):
+        """
+        Transpose the axis, so lexicals will have the expected shape
+        """
+        lexic = torch.tensor(self.lexicals[idx], dtype=torch.float)
+        return torch.transpose(lexic, 0, 1)
 
     def __len__(self):
         return len(self.labels)
@@ -77,16 +86,27 @@ class NegCueDataset(Dataset):
     def __getitem__(self, idx):
         item = {'input_ids': torch.tensor(self.encodings[idx], dtype=torch.long),
                 'attention_mask': torch.tensor(self.mask[idx], dtype=torch.long),
-                'labels': torch.tensor(self.labels[idx], dtype=torch.long)}
+                'labels': torch.tensor(self.labels[idx], dtype=torch.long),
+                'lexicals': self.shape_lexicals(idx)}
         return item
 
 
 if __name__ == "__main__":
+    # choose lexical features
+    lexicals = [
+        "POS", "Lemma", "SnowballStemmer", "Possible_Prefix", "Possible_Suffix"
+    ]
+
     # Prep the inputs
-    train_prep = BertPrep("data/SEM-2012-SharedTask-CD-SCO-training-simple.txt")
+    print("Preprocessing data")
+    train_prep = BertPrep(
+        "data/SEM-2012-SharedTask-CD-SCO-training-simple-v2-features.csv",
+        lexicals)
     train_dataset = NegCueDataset(train_prep.preprocess_dataset())
 
-    dev_prep = BertPrep("data/SEM-2012-SharedTask-CD-SCO-dev-simple.txt")
+    dev_prep = BertPrep(
+        "data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv",
+        lexicals)
     dev_dataset = NegCueDataset(dev_prep.preprocess_dataset())
 
     # Put data into dataloader
@@ -96,7 +116,11 @@ if __name__ == "__main__":
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    model = BertForNegationCueClassification.from_pretrained('bert-base-uncased', num_labels=len(train_prep.tag2idx))
+    model = BertForNegationCueClassification.from_pretrained(
+        'bert-base-uncased',
+        num_labels=len(train_prep.tag2idx),
+        n_lexicals=len(lexicals)
+    )
     model.to(device)
 
     optimizer = AdamW(model.parameters(), lr=1e-5)
@@ -114,7 +138,8 @@ if __name__ == "__main__":
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
-            outputs = model(input_ids, torch.ones(1, 128, 1),  # Dummy data
+            lexicals = batch['lexicals'].to(device)
+            outputs = model(input_ids, lexicals,
                             attention_mask=attention_mask, labels=labels)
 
             loss = outputs[0]
