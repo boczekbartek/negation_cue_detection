@@ -3,6 +3,7 @@ import spacy
 from nltk.stem.porter import *
 from nltk.stem.snowball import SnowballStemmer
 
+nlp = spacy.load("en_core_web_sm")
 #Prepare stemmers
 snow = SnowballStemmer(language='english')
 port = PorterStemmer()
@@ -62,24 +63,25 @@ def generate_features(df):
     :return: dataframe that contains 11 more columns containing the afformentioned features
     """
     #Makes all tokens lowercase
-    df['Token_lower']=df.apply(lambda row: row['Token'].lower(), axis=1)
+    df['token_lower']=df.apply(lambda row: row['token'].lower(), axis=1)
     #Adds columns for the lemma, pos-tag, snowballstem and porterstem
-    df['Lemma'], df['POS'], df['SnowballStemmer'], df['PorterStemmer'] = zip(*df.apply(lambda row: linguistic_features(row['Token_lower']), axis=1))
+    df['lemma'], df['pos'], df['snowballStemmer'], df['porterStemmer'] = zip(*df.apply(lambda row: linguistic_features(row['token_lower']), axis=1))
     #Adds columns with a binary if the word contains a possible negation prefix or suffix
-    df['Possible_Prefix'] = df.apply(lambda row: possible_negation_prefix(row['Token_lower']), axis=1)
-    df['Possible_Suffix'] = df.apply(lambda row: possible_negation_suffix(row['Token_lower']), axis=1)
+    df['possible_prefix'] = df.apply(lambda row: possible_negation_prefix(row['token_lower']), axis=1)
+    df['possible_suffix'] = df.apply(lambda row: possible_negation_suffix(row['token_lower']), axis=1)
     #Adds new columns for the previous and next lemma and pos-tag
-    df['Prev_Lemma'] = df['Lemma'].shift(periods=-1)
-    df['Next_Lemma'] = df['Lemma'].shift(periods=1)
-    df['Prev_POS'] = df['POS'].shift(periods=-1)
-    df['Next_POS'] = df['POS'].shift(periods=1)
+    df['prev_Lemma'] = df['lemma'].shift(periods=1)
+    df['next_Lemma'] = df['lemma'].shift(periods=-1)
+    df['prev_pos'] = df['pos'].shift(periods=1)
+    df['next_pos'] = df['pos'].shift(periods=-1)
     return df
 
 if __name__ == '__main__':
     #Load spacy model
     nlp = spacy.load("en_core_web_sm")
     #Load data csv
-    df=pd.read_csv('SEM-2012-SharedTask-CD-SCO-simple/SEM-2012-SharedTask-CD-SCO-dev-simple.txt', delimiter='\t', names=['Chapter', 'Sentence Number', 'Word Number', 'Token', 'Annotation'])
+    df=pd.read_csv('SEM-2012-SharedTask-CD-SCO-simple/SEM-2012-SharedTask-CD-SCO-dev-simple.v2.txt', delimiter='\t', names=["corpus", "n_sent", "n_word", "token", "tag"])
+    print(df['Annotation'].value_counts())
     df=generate_features(df)
     #Store generated conll file
     df.to_csv('SEM-2012-SharedTask-CD-SCO-simple/conll_extended.csv', sep='\t')
