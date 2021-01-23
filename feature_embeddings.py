@@ -249,12 +249,12 @@ class BertPrep(object):
             target_tag = all_target_tags[i][: self.max_len - 2]
 
             # bert markers and paddings for the rest
-            ids = [101] + ids + [102]
+            ids = [self.tokenizer.vocab['CLS']] + ids + [self.tokenizer.vocab['SEP']]
             target_tag = self.pad_start_end(self.tag2idx, target_tag)
 
             # pad shortened sequences
             padding_len = self.max_len - len(ids)
-            all_ids[i] = ids + ([0] * padding_len)
+            all_ids[i] = ids + ([self.tokenizer.vocab['PAD']] * padding_len)
             all_target_tags[i] = target_tag + ([self.tag2idx["PAD"]] * padding_len)
 
             # same 3 steps above, but for lexicals only
