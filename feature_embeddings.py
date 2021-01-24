@@ -163,11 +163,11 @@ class BertPrep(object):
         tokenized_sentence = []
         labels = []
         lexicals = None
-
+        token_ids = []
         if self.lexicals:
             lexicals = {lexical: [] for lexical in self.lexicals}
 
-        for aggreg_word in aggreg_sentence:
+        for i, aggreg_word in enumerate(aggreg_sentence):
             word_features = list(aggreg_word)
 
             # pop the word and tag
@@ -181,6 +181,7 @@ class BertPrep(object):
 
             # duplicate labels
             labels.extend(self.duplicate(label, n_subwords))
+            token_ids.extend(self.duplicate(i,n_subwords))
 
             if self.lexicals:
                 # duplicate lexicals
@@ -188,7 +189,7 @@ class BertPrep(object):
                     feat = word_features[i]
                     lexicals[lex].extend(self.duplicate(feat, n_subwords))
 
-        return tokenized_sentence, labels, lexicals
+        return tokenized_sentence, labels, lexicals, token_ids
 
     @staticmethod
     def duplicate(label, n_subwords):
@@ -248,7 +249,7 @@ class BertPrep(object):
         getter = SentenceGetter(self.data, self.lexicals)
         self.sentences = getter.sentences
         # tokenize the words + duplicate the labels and lexical features
-        tokenized_texts, tags, lexicals = map(
+        tokenized_texts, tags, lexicals, token_ids = map(
             list,
             zip(
                 *[
@@ -281,15 +282,17 @@ class BertPrep(object):
             # cut until max length, minus 2 to make room for bert markers
             ids = all_ids[i][: self.max_len - 2]
             target_tag = all_target_tags[i][: self.max_len - 2]
-
+            sent_token_ids = token_ids[i][: self.max_len - 2]
             # bert markers and paddings for the rest
             ids = [self.tokenizer.vocab['[CLS]']] + ids + [self.tokenizer.vocab['[SEP]']]
             target_tag = self.pad_start_end(self.tag2idx, target_tag)
+            sent_token_ids = self.pad_start_end(self.tag2idx, sent_token_ids)
 
             # pad shortened sequences
             padding_len = self.max_len - len(ids)
             all_ids[i] = ids + ([self.tokenizer.vocab['[PAD]']] * padding_len)
             all_target_tags[i] = target_tag + ([self.tag2idx["O"]] * padding_len)
+            token_ids[i] = sent_token_ids + ([self.tag2idx["O"]] * padding_len)
 
             # same 3 steps above, but for lexicals only
             if self.lexicals:
@@ -313,7 +316,8 @@ class BertPrep(object):
             "input_ids": all_ids,
             "attention_mask": attention_mask,
             "labels": all_target_tags,
-            "lexicals": processed_lex
+            "lexicals": processed_lex,
+            "token_ids" : token_ids
         }
 
 

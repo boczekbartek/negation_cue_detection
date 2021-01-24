@@ -79,6 +79,7 @@ class NegCueDataset(Dataset):
         self.mask = dataset['attention_mask']
         self.labels = dataset['labels']
         self.lexicals = dataset['lexicals']
+        self.token_ids = dataset['token_ids']
 
     def shape_lexicals(self, idx):
         """
@@ -96,11 +97,13 @@ class NegCueDataset(Dataset):
             item = {'input_ids': torch.tensor(self.encodings[idx], dtype=torch.long),
                     'attention_mask': torch.tensor(self.mask[idx], dtype=torch.long),
                     'labels': torch.tensor(self.labels[idx], dtype=torch.long),
-                    'lexicals': self.shape_lexicals(idx)}
+                    'lexicals': self.shape_lexicals(idx),
+                    'token_ids': torch.tensor(self.token_ids[idx], dtype=torch.long)}
         else:
             item = {'input_ids': torch.tensor(self.encodings[idx], dtype=torch.long),
                     'attention_mask': torch.tensor(self.mask[idx], dtype=torch.long),
-                    'labels': torch.tensor(self.labels[idx], dtype=torch.long)}
+                    'labels': torch.tensor(self.labels[idx], dtype=torch.long),
+                    'token_ids': torch.tensor(self.token_ids[idx], dtype=torch.long)}
         return item
 
 
@@ -161,7 +164,7 @@ if __name__ == "__main__":
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
             
-            lexicals = None if n_lexicals == 0 else batch['lexicals']
+            lexicals = None if n_lexicals == 0 else batch['lexicals'].to(device)
             outputs = model(input_ids, lexicals, attention_mask=attention_mask, labels=labels)
 
             loss = outputs.loss

@@ -38,9 +38,10 @@ if __name__ == "__main__":
     VERBOSE=False
 
     tokenizer = train_prep.tokenizer
+    inv_tag_enc = {v:k for k,v in train_prep.tag2idx.items()}
     with torch.no_grad():
         for i, data in enumerate(dev_data_loader):
-            sentence = dev_prep.sentences[i]
+            sentence = [el[0] for el in dev_prep.sentences[i]]
             tok_sentence = dev_prep.tokenized_texts[i]
 
             # detect the index of the end of the sentence
@@ -51,29 +52,19 @@ if __name__ == "__main__":
             true_sent_tags = data['labels'].numpy().reshape(-1)[: end][1:]
             true_tags.extend(true_sent_tags)
 
-            token_ids = data['input_ids'].numpy().reshape(-1)[: end][1:]
+            token_ids = data['token_ids'].numpy().reshape(-1)[: end][1:]
 
-            # true_tag_parsed = []
-            # prev_id = None
-            # for label, tok_id in zip(true_sent_tags, token_ids):
-            #     if prev_id == tok_id:
-            #         prev_id = tok_id
-            #         continue
-            #     prev_id = tok_id
-            #     true_tag_parsed.append(label)
-            # true_tags_parsed.extend(true_tag_parsed)
+            true_tag_parsed = []
+            prev_id = None
+            for label, tok_id in zip(true_sent_tags, token_ids):
+                if prev_id == tok_id:
+                    prev_id = tok_id
+                    continue
+                prev_id = tok_id
+                true_tag_parsed.append(label)
+            true_tags_parsed.extend(true_tag_parsed)
             tokens = tokenizer.convert_ids_to_tokens(tokenized_sentence, skip_special_tokens=True)
-            # print(len(sentence), '|', sentence)
-            
-            if VERBOSE:
-              print(len(tokens), '|', tokens)
-              print(len(token_ids), '|', token_ids)
-            #   print(len(true_sent_tags), '|', enc_tag.inverse_transform(true_sent_tags))
-            #   print(len(true_tag_parsed), '|', enc_tag.inverse_transform(true_tag_parsed))
-            # Decode the sentence
-            
-            # Get token ids to glue labels
-
+  
             for k in ('input_ids', 'attention_mask', 'labels', 'lexicals'):
                 if k in data:
                     data[k] = data[k].to(device)
@@ -89,21 +80,17 @@ if __name__ == "__main__":
             pred_tags.extend(pred_sent_tags)
 
             # Glue tags that were extended because of tokenization.
-            # pred_tag_parsed = []
-            # prev_id = None
-            # for label, tok_id in zip(pred_sent_tags, token_ids):
-            #     if prev_id == tok_id:
-            #         prev_id = tok_id
-            #         continue
-            #     prev_id = tok_id
-            #     pred_tag_parsed.append(label)
+            pred_tag_parsed = []
+            prev_id = None
+            for label, tok_id in zip(pred_sent_tags, token_ids):
+                if prev_id == tok_id:
+                    prev_id = tok_id
+                    continue
+                prev_id = tok_id
+                pred_tag_parsed.append(label)
 
-            # pred_tags_parsed.extend(pred_tag_parsed)
-            if VERBOSE:
-              print(len(pred_sent_tags), '|', enc_tag.inverse_transform(pred_sent_tags))
-
-              print(len(pred_tag_parsed), '|', enc_tag.inverse_transform(pred_tag_parsed))
-              
+            pred_tags_parsed.extend(pred_tag_parsed)
+            
             if not np.array_equal(true_sent_tags, pred_sent_tags):
             # if "n't" in sentence:
             # if '[UNK]' in tokens:
@@ -112,13 +99,19 @@ if __name__ == "__main__":
             #   if t == '[UNK]':
             #     unk_i.append(i)
               print(f'---------------------{i}--------------------------')
-              print(tok_sentence)
-              mask=np.array(true_sent_tags)!=np.array(pred_sent_tags)
-              print(np.ma.array(tok_sentence, mask=~mask))
+              print(sentence)
+              mask=np.array(true_tag_parsed)!=np.array(pred_tag_parsed)
+              print(np.ma.array(sentence, mask=~mask))
               # print('UNK:', [sentence[i] for i in unk_i])
-              print('TRUE |', true_sent_tags)
-              print('PRED |', pred_sent_tags)
+              print('TRUE |', [inv_tag_enc[k] for k in true_tag_parsed])
+              print('PRED |', [inv_tag_enc[k] for k in pred_tag_parsed])
 
 
-    print(classification_report(true_tags, pred_tags))
-    # print(classification_report(true_tags_parsed, pred_tags_parsed,target_names=enc_tag.classes_))
+    print(
+      classification_report(true_tags, pred_tags, 
+                            target_names=list(train_prep.tag2idx.keys()))
+         )
+    print(
+      classification_report(true_tags_parsed, pred_tags_parsed,
+                            target_names=list(train_prep.tag2idx.keys()))
+          )
