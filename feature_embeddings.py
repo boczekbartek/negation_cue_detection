@@ -66,7 +66,7 @@ class SentenceGetter(object):
 
 # prepare sentences and labels for bert
 class BertPrep(object):
-    def __init__(self, path, lexicals=None, max_sent_len=95):  # max lengths train=91, dev=69
+    def __init__(self, path, lexicals=None, max_sent_len=95):
         # chose smallest pre-trained bert (uncased)
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.data = self.load_data(path)
@@ -98,6 +98,9 @@ class BertPrep(object):
             data = pd.read_csv(path, delimiter="\t", header=0, index_col=0)
             data["sent_id"] = data["corpus"] + data["n_sent"].astype(str)
 
+        # do lowercase since 'uncased' model is used
+        data['Token'] = data['Token'].astype(str).apply(str.lower)
+        print(data.head())
         return data
 
     def set_max_len(self, tokenized_texts):
@@ -114,7 +117,8 @@ class BertPrep(object):
         :return:
         """
         values = list(set(self.data[feature].values))
-        values.insert(0, "PAD")
+        if feature != 'tag':
+            values.insert(0, "PAD")
 
         if scale:
             step = np.linspace(0, 1, len(values))
@@ -221,7 +225,10 @@ class BertPrep(object):
         :param feature_to_pad:
         :return:
         """
-        return [encoder["PAD"]] + feature_to_pad + [encoder["PAD"]]
+        if 'O' in encoder:
+            return [encoder["O"]] + feature_to_pad + [encoder["O"]]
+        else:
+            return [encoder["PAD"]] + feature_to_pad + [encoder["PAD"]]
 
     def preprocess_dataset(self):
         """
@@ -263,6 +270,8 @@ class BertPrep(object):
         else:
             processed_lex = None
 
+        #TODO add markers which tokens were split by tokenizer
+
         # cut/pad the sequences & the bert markers
         for i in range(len(all_ids)):
 
@@ -271,13 +280,13 @@ class BertPrep(object):
             target_tag = all_target_tags[i][: self.max_len - 2]
 
             # bert markers and paddings for the rest
-            ids = [101] + ids + [102]
+            ids = [self.tokenizer.vocab['[CLS]']] + ids + [self.tokenizer.vocab['[SEP]']]
             target_tag = self.pad_start_end(self.tag2idx, target_tag)
 
             # pad shortened sequences
             padding_len = self.max_len - len(ids)
-            all_ids[i] = ids + ([0] * padding_len)
-            all_target_tags[i] = target_tag + ([self.tag2idx["PAD"]] * padding_len)
+            all_ids[i] = ids + ([self.tokenizer.vocab['[PAD]']] * padding_len)
+            all_target_tags[i] = target_tag + ([self.tag2idx["O"]] * padding_len)
 
             # same 3 steps above, but for lexicals only
             if self.lexicals:

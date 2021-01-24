@@ -16,41 +16,39 @@ MODEL_NAME = 'neg_cue_detection_model'
 
 
 class BertForNegationCueClassification(BertPreTrainedModel):
-    def __init__(self, config, n_lexicals):
+    def __init__(self, config, n_lexicals=0):
         super().__init__(config)
         self.config = config
         self.num_labels = config.num_labels
+        self.n_lexicals = n_lexicals
 
         self.bert = BertModel.from_pretrained('bert-base-uncased')
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size + n_lexicals,
+        self.classifier = nn.Linear(config.hidden_size + self.n_lexicals,
                                     config.num_labels)
 
-        self.init_weights()
-
     def forward(self, input_ids=None, lexical_features=None, attention_mask=None, token_type_ids=None,
-                position_ids=None, head_mask=None, inputs_embeds=None, labels=None, output_attentions=None,
-                output_hidden_states=None, return_dict=None):
+                return_dict=None, labels=None, *args, **kwargs):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
-        outputs = self.bert(input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids,
-                            position_ids=position_ids, head_mask=head_mask, inputs_embeds=inputs_embeds,
-                            output_attentions=output_attentions, output_hidden_states=output_hidden_states,
-                            return_dict=return_dict)
+        outputs = self.bert(input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids, **kwargs)
 
-        sequence_output = outputs[0]
+        sequence_output = outputs.last_hidden_state
         sequence_output = self.dropout(sequence_output)
+        if self.n_lexicals == 0:
+            logits = self.classifier(sequence_output)
+        else:
+            f_tensors = [sequence_output]
+            for lex_tensor in lexical_features:
+                # lexical_tensor = torch.ones(seq_size[0], seq_size[1], 1) if feature \
+                #     else torch.zeros(seq_size[0], seq_size[1], 1)
+                f_tensors.append(lex_tensor.to(device))
 
-        f_tensors = [sequence_output]
-        for lex_tensor in lexical_features:
-            # lexical_tensor = torch.ones(seq_size[0], seq_size[1], 1) if feature \
-            #     else torch.zeros(seq_size[0], seq_size[1], 1)
-            f_tensors.append(lex_tensor.to(device))
-
-        logits = self.classifier(torch.cat(tuple(f_tensors), dim=2))
+            logits = self.classifier(torch.cat(tuple(f_tensors), dim=2))
 
         loss = None
         if labels is not None:
+            print('Calculating loss')
             loss_fct = nn.CrossEntropyLoss()
             # Only keep active parts of the loss
             if attention_mask is not None:
@@ -76,7 +74,8 @@ class BertForNegationCueClassification(BertPreTrainedModel):
 
 
 class NegCueDataset(Dataset):
-    def __init__(self, dataset: dict):
+    def __init__(self, dataset: dict, n_lexicals: int =0):
+        self.n_lexicals = n_lexicals
         self.encodings = dataset['input_ids']
         self.mask = dataset['attention_mask']
         self.labels = dataset['labels']
@@ -94,46 +93,59 @@ class NegCueDataset(Dataset):
         return len(self.labels)
 
     def __getitem__(self, idx):
-        item = {'input_ids': torch.tensor(self.encodings[idx], dtype=torch.long),
-                'attention_mask': torch.tensor(self.mask[idx], dtype=torch.long),
-                'labels': torch.tensor(self.labels[idx], dtype=torch.long),
-                'lexicals': self.shape_lexicals(idx)}
+        if self.n_lexicals != 0:
+            item = {'input_ids': torch.tensor(self.encodings[idx], dtype=torch.long),
+                    'attention_mask': torch.tensor(self.mask[idx], dtype=torch.long),
+                    'labels': torch.tensor(self.labels[idx], dtype=torch.long),
+                    'lexicals': self.shape_lexicals(idx)}
+        else:
+            item = {'input_ids': torch.tensor(self.encodings[idx], dtype=torch.long),
+                    'attention_mask': torch.tensor(self.mask[idx], dtype=torch.long),
+                    'labels': torch.tensor(self.labels[idx], dtype=torch.long)}
         return item
 
 
 if __name__ == "__main__":
-    torch.cuda.empty_cache()
+    random.seed(SEED)
+    np.random.seed(SEED)
+    torch.manual_seed(SEED)
+    torch.cuda.manual_seed_all(SEED)
     
+    torch.cuda.empty_cache()
+
     # choose lexical features
     lexicals = ["POS", "Possible_Prefix", "Possible_Suffix"]
+    # lexicals = []
 
     # Prep the inputs
     print("Preprocessing data")
     train_prep = BertPrep("data/SEM-2012-SharedTask-CD-SCO-training-simple-v2-features.csv", lexicals)
-    train_dataset = NegCueDataset(train_prep.preprocess_dataset())
+    n_lexicals = 0 if len(lexicals) == 0 else sum(len(next(iter(v.values()))) for v in train_prep.feature_labels.values())
+    train_dataset = NegCueDataset(train_prep.preprocess_dataset(), n_lexicals=n_lexicals)
 
     dev_prep = BertPrep("data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv", lexicals)
-    dev_dataset = NegCueDataset(dev_prep.preprocess_dataset())
+    dev_dataset = NegCueDataset(dev_prep.preprocess_dataset(), n_lexicals=n_lexicals)
 
     # Put data into dataloader
     train_data_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, sampler=RandomSampler(train_dataset))
+    
     dev_data_loader = DataLoader(dev_dataset, batch_size=BATCH_SIZE, sampler=SequentialSampler(dev_dataset))
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    
+    
+    print(f'Using lexical features: {lexicals}, total_size: {n_lexicals}')
+    print(f"Length of train: {print(len(train_dataset))}, dev: {print(len(dev_dataset))}")
     model = BertForNegationCueClassification.from_pretrained(
         'bert-base-uncased',
         num_labels=len(train_prep.tag2idx),
-        n_lexicals=sum(len(next(iter(v.values()))) for v in train_prep.feature_labels.values())
+        n_lexicals=n_lexicals
     )
 
     model.to(device)
-    random.seed(SEED)
-    np.random.seed(SEED)
-    torch.manual_seed(SEED)
-    torch.cuda.manual_seed_all(SEED)
-
+ 
     optimizer = AdamW(model.parameters(), lr=1e-5)
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=1e2,
                                                 num_training_steps=len(train_data_loader) * EPOCHS)
@@ -149,10 +161,11 @@ if __name__ == "__main__":
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
-            lexicals = batch['lexicals']
+            
+            lexicals = None if n_lexicals == 0 else batch['lexicals']
             outputs = model(input_ids, lexicals, attention_mask=attention_mask, labels=labels)
 
-            loss = outputs[0]
+            loss = outputs.loss
             batch_loss = loss.item()
 
             # Show training progress
@@ -191,11 +204,10 @@ if __name__ == "__main__":
             input_ids = batch['input_ids'].to(device)
             masks = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
-            lexicals = batch['lexicals']
-
             with torch.no_grad():
+                lexicals = None if n_lexicals == 0 else batch['lexicals']
                 outputs = model(input_ids, lexicals, attention_mask=masks, labels=labels)
-                loss = outputs[0]
+                loss = outputs.loss
 
             batch_loss = loss.item()
             total_eval_loss += batch_loss
@@ -206,8 +218,7 @@ if __name__ == "__main__":
     print("\n\n ------------- \n Training complete! \n  -------------")
     print('Saving model checkpoint')
     checkpoint_name = f"{MODEL_NAME}_{999}_{999}"
-    if not os.path.exists(checkpoint_name):
-        os.makedirs(checkpoint_name)
+    os.makedirs(checkpoint_name, exist_ok=True)
 
     model_to_save = model.module if hasattr(model, 'module') else model
     model_to_save.save_pretrained(checkpoint_name)
