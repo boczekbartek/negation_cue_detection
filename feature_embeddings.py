@@ -11,7 +11,6 @@ and
 https://github.com/abhishekkrthakur/bert-entity-extraction
 
 """
-# %%
 from generate_features import generate_features
 from transformers import BertTokenizer
 from sklearn.preprocessing import OneHotEncoder
@@ -19,16 +18,23 @@ import pandas as pd
 import numpy as np
 
 
+POS_TAGS = ['ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ', 'NOUN', 'NUM',
+            'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X', 'SPACE']
+
+
 class SentenceGetter(object):
     def __init__(self, data, lexicals=None):
         self.n_sent = 1
         self.data = data
         self.empty = False
+
         agg_func = lambda s: self.aggregate(s, lexicals)
+
         self.grouped = self.data.groupby("sent_id").apply(agg_func)
         self.sentences = [s for s in self.grouped]
 
-    def aggregate(self, s, lexicals:list=None):
+    @staticmethod
+    def aggregate(s, lexicals: list = None):
         """
         Groups the Token, Tag, and lexical features per word in a sentence.
 
@@ -56,6 +62,7 @@ class SentenceGetter(object):
             return s
         except:
             return None
+
 
 # prepare sentences and labels for bert
 class BertPrep(object):
@@ -100,7 +107,7 @@ class BertPrep(object):
         """
         self.max_len = max([len(sent) for sent in tokenized_texts])
 
-    def create_label_dict(self, feature, scale:bool):
+    def create_label_dict(self, feature, scale: bool):
         """
         Convert the tags to indices and create dict for conversion.
 
@@ -125,16 +132,19 @@ class BertPrep(object):
         """
         def encode(feat):
             enc = OneHotEncoder(handle_unknown='ignore', sparse=False)
-            v = prep.data[feat].values.reshape(len(prep.data[feat].values), 1)
-            one_hot = enc.fit_transform(v)
-            return one_hot
+            if feat == 'Possible_Prefix' or feat == 'Possible_Suffix':
+                v = [True, False]
+                one_hot = np.array([[1., 1.], [1., 0.], [0., 1.]])
+            else:
+                v = np.array(POS_TAGS)
+                one_hot = enc.fit_transform(v.reshape(len(v), 1))
+
+            d = {label: one_hot[i] for i, label in enumerate(v)}
+            d['PAD'] = np.zeros(one_hot.shape[1])
+            return d
 
         if lexicals:
-            lex2idx = {
-                feat: encode(feat)
-                for feat in lexicals
-            }
-            return lex2idx
+            return {feat: encode(feat) for feat in lexicals}
 
     def tokenize_and_duplicate_labels(self, aggreg_sentence):
         """
@@ -174,7 +184,8 @@ class BertPrep(object):
 
         return tokenized_sentence, labels, lexicals
 
-    def duplicate(self, label, n_subwords):
+    @staticmethod
+    def duplicate(label, n_subwords):
         """
         Duplicates a label or feature element
         """
@@ -195,14 +206,15 @@ class BertPrep(object):
         """
         all_lexicals = [
             {
-                lex:[self.feature_labels[lex].get(feat) for feat in sent[lex]]
+                lex: [self.feature_labels[lex].get(feat) for feat in sent[lex]]
                 for lex in sent.keys()
             }
             for sent in lexicals
         ]
         return all_lexicals
 
-    def pad_start_end(self, encoder, feature_to_pad):
+    @staticmethod
+    def pad_start_end(encoder, feature_to_pad):
         """
         Adds padding to features to align with the [cls] and [sep] markers.
         :param encoder: the label to index dictionary
@@ -244,6 +256,7 @@ class BertPrep(object):
         all_target_tags = [[self.tag2idx.get(tag) for tag in sent] for sent in tags]
 
         # don't break when no lexical features are included pls
+        all_lexicals = None
         if self.lexicals:
             all_lexicals = self.encode_lexicals(lexicals)
             processed_lex = []
@@ -291,20 +304,11 @@ class BertPrep(object):
             "lexicals": processed_lex
         }
 
-# if __name__ == "__main__":
-# %%
-prep = BertPrep(
-    "data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv",
-    ["POS"]
-)
-processed = prep.preprocess_dataset()
-    
-# %%
-# %%
 
-# %%
-# %%
- = enc.transform(v)
-print(one_hot[0:10])
-print(v[0:10])
-# %%
+# if __name__ == "__main__":
+#     prep = BertPrep(
+#         "data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv",
+#         ["POS", "Possible_Prefix", "Possible_Suffix"]
+#     )
+#     processed = prep.preprocess_dataset()
+#     pass

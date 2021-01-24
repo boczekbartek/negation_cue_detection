@@ -1,4 +1,6 @@
+import numpy as np
 import os
+import random
 import torch
 from time import time
 from torch import nn
@@ -7,8 +9,9 @@ from transformers import BertTokenizer, BertPreTrainedModel, BertModel, AdamW, g
 from transformers.modeling_outputs import TokenClassifierOutput
 from feature_embeddings import BertPrep
 
-EPOCHS = 25
-BATCH_SIZE = 32
+EPOCHS = 100
+BATCH_SIZE = 8
+SEED = 777
 MODEL_NAME = 'neg_cue_detection_model'
 
 
@@ -36,9 +39,15 @@ class BertForNegationCueClassification(BertPreTrainedModel):
                             return_dict=return_dict)
 
         sequence_output = outputs[0]
-
         sequence_output = self.dropout(sequence_output)
-        logits = self.classifier(torch.cat((sequence_output, lexical_features), dim=2))
+
+        f_tensors = [sequence_output]
+        for lex_tensor in lexical_features:
+            # lexical_tensor = torch.ones(seq_size[0], seq_size[1], 1) if feature \
+            #     else torch.zeros(seq_size[0], seq_size[1], 1)
+            f_tensors.append(lex_tensor.to(device))
+
+        logits = self.classifier(torch.cat(tuple(f_tensors), dim=2))
 
         loss = None
         if labels is not None:
@@ -77,8 +86,9 @@ class NegCueDataset(Dataset):
         """
         Transpose the axis, so lexicals will have the expected shape
         """
-        lexic = torch.tensor(self.lexicals[idx], dtype=torch.float)
-        return torch.transpose(lexic, 0, 1)
+        # lexicals = [torch.transpose(torch.tensor(l, dtype=torch.float), 0, 1) for l in self.lexicals[idx]]
+        lexicals = [torch.tensor(l, dtype=torch.float) for l in self.lexicals[idx]]
+        return lexicals
 
     def __len__(self):
         return len(self.labels)
@@ -92,21 +102,17 @@ class NegCueDataset(Dataset):
 
 
 if __name__ == "__main__":
+    torch.cuda.empty_cache()
+    
     # choose lexical features
-    lexicals = [
-        "POS", "Lemma", "SnowballStemmer", "Possible_Prefix", "Possible_Suffix"
-    ]
+    lexicals = ["POS", "Possible_Prefix", "Possible_Suffix"]
 
     # Prep the inputs
     print("Preprocessing data")
-    train_prep = BertPrep(
-        "data/SEM-2012-SharedTask-CD-SCO-training-simple-v2-features.csv",
-        lexicals)
+    train_prep = BertPrep("data/SEM-2012-SharedTask-CD-SCO-training-simple-v2-features.csv", lexicals)
     train_dataset = NegCueDataset(train_prep.preprocess_dataset())
 
-    dev_prep = BertPrep(
-        "data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv",
-        lexicals)
+    dev_prep = BertPrep("data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv", lexicals)
     dev_dataset = NegCueDataset(dev_prep.preprocess_dataset())
 
     # Put data into dataloader
@@ -119,9 +125,14 @@ if __name__ == "__main__":
     model = BertForNegationCueClassification.from_pretrained(
         'bert-base-uncased',
         num_labels=len(train_prep.tag2idx),
-        n_lexicals=len(lexicals)
+        n_lexicals=sum(len(next(iter(v.values()))) for v in train_prep.feature_labels.values())
     )
+
     model.to(device)
+    random.seed(SEED)
+    np.random.seed(SEED)
+    torch.manual_seed(SEED)
+    torch.cuda.manual_seed_all(SEED)
 
     optimizer = AdamW(model.parameters(), lr=1e-5)
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=1e2,
@@ -138,9 +149,8 @@ if __name__ == "__main__":
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
-            lexicals = batch['lexicals'].to(device)
-            outputs = model(input_ids, lexicals,
-                            attention_mask=attention_mask, labels=labels)
+            lexicals = batch['lexicals']
+            outputs = model(input_ids, lexicals, attention_mask=attention_mask, labels=labels)
 
             loss = outputs[0]
             batch_loss = loss.item()
@@ -181,9 +191,10 @@ if __name__ == "__main__":
             input_ids = batch['input_ids'].to(device)
             masks = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
+            lexicals = batch['lexicals']
 
             with torch.no_grad():
-                outputs = model(input_ids, attention_mask=masks, labels=labels)
+                outputs = model(input_ids, lexicals, attention_mask=masks, labels=labels)
                 loss = outputs[0]
 
             batch_loss = loss.item()
@@ -193,3 +204,11 @@ if __name__ == "__main__":
         print(f"Validation Loss: {avg_val_loss}")
 
     print("\n\n ------------- \n Training complete! \n  -------------")
+    print('Saving model checkpoint')
+    checkpoint_name = f"{MODEL_NAME}_{999}_{999}"
+    if not os.path.exists(checkpoint_name):
+        os.makedirs(checkpoint_name)
+
+    model_to_save = model.module if hasattr(model, 'module') else model
+    model_to_save.save_pretrained(checkpoint_name)
+    tokenizer.save_pretrained(checkpoint_name)
