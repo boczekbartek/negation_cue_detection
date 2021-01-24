@@ -13,7 +13,7 @@ EPOCHS = 25
 BATCH_SIZE = 32
 SEED = 777
 MODEL_NAME = 'neg_cue_detection_model'
-
+MODEL_NAME = 'neg_cue_detection_model_lex'
 
 class BertForNegationCueClassification(BertPreTrainedModel):
     def __init__(self, config, n_lexicals=0):
@@ -28,7 +28,7 @@ class BertForNegationCueClassification(BertPreTrainedModel):
                                     config.num_labels)
 
     def forward(self, input_ids=None, lexical_features=None, attention_mask=None, token_type_ids=None,
-                return_dict=None, labels=None, *args, **kwargs):
+                return_dict=None, labels=None, device=None,*args, **kwargs):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         outputs = self.bert(input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids, **kwargs)
@@ -116,8 +116,8 @@ if __name__ == "__main__":
     torch.cuda.empty_cache()
 
     # choose lexical features
-    # lexicals = ["POS", "Possible_Prefix", "Possible_Suffix"]
-    lexicals = []
+    lexicals = ["POS", "Possible_Prefix", "Possible_Suffix"]
+    # lexicals = []
 
     # Prep the inputs
     print("Preprocessing data")
@@ -164,8 +164,8 @@ if __name__ == "__main__":
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
             
-            lexicals = None if n_lexicals == 0 else batch['lexicals'].to(device)
-            outputs = model(input_ids, lexicals, attention_mask=attention_mask, labels=labels)
+            lexicals = None if n_lexicals == 0 else batch['lexicals']
+            outputs = model(input_ids, lexicals, attention_mask=attention_mask, labels=labels, device=device)
 
             loss = outputs.loss
             batch_loss = loss.item()
@@ -206,9 +206,10 @@ if __name__ == "__main__":
             input_ids = batch['input_ids'].to(device)
             masks = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
+            lexicals = None if n_lexicals == 0 else batch['lexicals']
+            
             with torch.no_grad():
-                lexicals = None if n_lexicals == 0 else batch['lexicals']
-                outputs = model(input_ids, lexicals, attention_mask=masks, labels=labels)
+                outputs = model(input_ids, lexicals, attention_mask=masks, labels=labels, device=device)
                 loss = outputs.loss
 
             batch_loss = loss.item()

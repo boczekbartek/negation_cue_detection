@@ -2,15 +2,17 @@ import numpy as np
 
 import torch
 from torch.utils.data import Dataset, DataLoader, RandomSampler, SequentialSampler
-from main import NegCueDataset, BertForNegationCueClassification
+from main import NegCueDataset, BertForNegationCueClassification, MODEL_NAME
 from feature_embeddings import BertPrep
 from tqdm import tqdm
 from sklearn.metrics import classification_report
 
-if __name__ == "__main__":
-    MODEL_NAME = 'neg_cue_detection_model'
+if __name__ == "__main__":    
     checkpoint_name = f"{MODEL_NAME}_{999}_{999}"
+    
     lexicals = []
+    # lexicals = ["POS", "Possible_Prefix", "Possible_Suffix"]
+
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     train_prep = BertPrep("data/SEM-2012-SharedTask-CD-SCO-training-simple-v2-features.csv", lexicals)
@@ -22,6 +24,7 @@ if __name__ == "__main__":
     
     dev_data_loader = DataLoader(dev_dataset, batch_size=1, num_workers=1)
     
+    print(f"Loading checkpoint: {checkpoint_name}")
     model = BertForNegationCueClassification.from_pretrained(
         checkpoint_name,
         num_labels=len(train_prep.tag2idx),
@@ -65,16 +68,13 @@ if __name__ == "__main__":
             true_tags_parsed.extend(true_tag_parsed)
             tokens = tokenizer.convert_ids_to_tokens(tokenized_sentence, skip_special_tokens=True)
   
-            for k in ('input_ids', 'attention_mask', 'labels', 'lexicals'):
-                if k in data:
-                    data[k] = data[k].to(device)
             input_ids = data['input_ids'].to(device)
             attention_mask = data['attention_mask'].to(device)
             labels = data['labels'].to(device)
-            lexicals = None if n_lexicals == 0 else data['lexicals'].to(device)
+            lexicals = None if n_lexicals == 0 else data['lexicals']
 
             # Query the model for tags predictions
-            outputs = model(input_ids, lexicals, attention_mask=attention_mask, labels=labels)            
+            outputs = model(input_ids, lexicals, attention_mask=attention_mask, labels=labels, device=device)            
             # Get actual tags from logits and strip them to sentence length
             pred_sent_tags = outputs.logits.argmax(2).cpu().numpy().reshape(-1)[: end][1:]
             pred_tags.extend(pred_sent_tags)
