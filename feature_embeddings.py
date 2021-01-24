@@ -70,7 +70,11 @@ class BertPrep(object):
         # chose smallest pre-trained bert (uncased)
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.data = self.load_data(path)
-        self.tag2idx = self.create_label_dict("tag", scale=False)
+        self.tag2idx = {
+            'B-NEG' : 0,
+            'O' : 1,
+            'I-NEG' : 2
+        }
         self.feature_labels = self.label_lexicals(lexicals)
         self.max_len = max_sent_len
         self.lexicals = lexicals
@@ -242,7 +246,7 @@ class BertPrep(object):
 
         # get the sentences and the labels from the dataframe
         getter = SentenceGetter(self.data, self.lexicals)
-
+        self.sentences = getter.sentences
         # tokenize the words + duplicate the labels and lexical features
         tokenized_texts, tags, lexicals = map(
             list,
@@ -253,7 +257,8 @@ class BertPrep(object):
                 ]
             ),
         )
-
+        
+        self.tokenized_texts = tokenized_texts
         # turn vars to numericals
         all_ids = [
             self.tokenizer.convert_tokens_to_ids(sent) for sent in tokenized_texts
