@@ -70,7 +70,6 @@ class BertPrep(object):
         # chose smallest pre-trained bert (uncased)
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.data = self.load_data(path)
-        self.data = self.data.iloc[0:10]
         self.tag2idx = self.create_label_dict("tag", scale=False)
         self.feature_labels = self.label_lexicals(lexicals)
         self.max_len = max_sent_len
@@ -100,7 +99,6 @@ class BertPrep(object):
 
         # do lowercase since 'uncased' model is used
         data['Token'] = data['Token'].astype(str).apply(str.lower)
-        print(data.head())
         return data
 
     def set_max_len(self, tokenized_texts):

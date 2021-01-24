@@ -48,7 +48,6 @@ class BertForNegationCueClassification(BertPreTrainedModel):
 
         loss = None
         if labels is not None:
-            print('Calculating loss')
             loss_fct = nn.CrossEntropyLoss()
             # Only keep active parts of the loss
             if attention_mask is not None:
@@ -114,8 +113,8 @@ if __name__ == "__main__":
     torch.cuda.empty_cache()
 
     # choose lexical features
-    lexicals = ["POS", "Possible_Prefix", "Possible_Suffix"]
-    # lexicals = []
+    # lexicals = ["POS", "Possible_Prefix", "Possible_Suffix"]
+    lexicals = []
 
     # Prep the inputs
     print("Preprocessing data")
@@ -125,7 +124,8 @@ if __name__ == "__main__":
 
     dev_prep = BertPrep("data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv", lexicals)
     dev_dataset = NegCueDataset(dev_prep.preprocess_dataset(), n_lexicals=n_lexicals)
-
+    
+    print(f"Length of train: {len(train_dataset)}, dev: {len(dev_dataset)} sentences.")
     # Put data into dataloader
     train_data_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, sampler=RandomSampler(train_dataset))
     
@@ -137,7 +137,6 @@ if __name__ == "__main__":
     
     
     print(f'Using lexical features: {lexicals}, total_size: {n_lexicals}')
-    print(f"Length of train: {print(len(train_dataset))}, dev: {print(len(dev_dataset))}")
     model = BertForNegationCueClassification.from_pretrained(
         'bert-base-uncased',
         num_labels=len(train_prep.tag2idx),
