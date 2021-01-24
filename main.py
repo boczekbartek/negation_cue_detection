@@ -9,8 +9,8 @@ from transformers import BertTokenizer, BertPreTrainedModel, BertModel, AdamW, g
 from transformers.modeling_outputs import TokenClassifierOutput
 from feature_embeddings import BertPrep
 
-EPOCHS = 100
-BATCH_SIZE = 8
+EPOCHS = 25
+BATCH_SIZE = 32
 SEED = 777
 MODEL_NAME = 'neg_cue_detection_model'
 
