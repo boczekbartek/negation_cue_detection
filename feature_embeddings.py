@@ -66,12 +66,15 @@ class SentenceGetter(object):
 
 # prepare sentences and labels for bert
 class BertPrep(object):
-    def __init__(self, path, lexicals=None, max_sent_len=95):  # max lengths train=91, dev=69
+    def __init__(self, path, lexicals=None, max_sent_len=95):
         # chose smallest pre-trained bert (uncased)
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.data = self.load_data(path)
-        self.data = self.data.iloc[0:10]
-        self.tag2idx = self.create_label_dict("tag", scale=False)
+        self.tag2idx = {
+            'B-NEG' : 0,
+            'O' : 1,
+            'I-NEG' : 2
+        }
         self.feature_labels = self.label_lexicals(lexicals)
         self.max_len = max_sent_len
         self.lexicals = lexicals
@@ -98,6 +101,8 @@ class BertPrep(object):
             data = pd.read_csv(path, delimiter="\t", header=0, index_col=0)
             data["sent_id"] = data["corpus"] + data["n_sent"].astype(str)
 
+        # do lowercase since 'uncased' model is used
+        data['Token'] = data['Token'].astype(str).apply(str.lower)
         return data
 
     def set_max_len(self, tokenized_texts):
@@ -114,7 +119,8 @@ class BertPrep(object):
         :return:
         """
         values = list(set(self.data[feature].values))
-        values.insert(0, "PAD")
+        if feature != 'tag':
+            values.insert(0, "PAD")
 
         if scale:
             step = np.linspace(0, 1, len(values))
@@ -157,11 +163,11 @@ class BertPrep(object):
         tokenized_sentence = []
         labels = []
         lexicals = None
-
+        token_ids = []
         if self.lexicals:
             lexicals = {lexical: [] for lexical in self.lexicals}
 
-        for aggreg_word in aggreg_sentence:
+        for i, aggreg_word in enumerate(aggreg_sentence):
             word_features = list(aggreg_word)
 
             # pop the word and tag
@@ -175,6 +181,7 @@ class BertPrep(object):
 
             # duplicate labels
             labels.extend(self.duplicate(label, n_subwords))
+            token_ids.extend(self.duplicate(i,n_subwords))
 
             if self.lexicals:
                 # duplicate lexicals
@@ -182,7 +189,7 @@ class BertPrep(object):
                     feat = word_features[i]
                     lexicals[lex].extend(self.duplicate(feat, n_subwords))
 
-        return tokenized_sentence, labels, lexicals
+        return tokenized_sentence, labels, lexicals, token_ids
 
     @staticmethod
     def duplicate(label, n_subwords):
@@ -221,7 +228,10 @@ class BertPrep(object):
         :param feature_to_pad:
         :return:
         """
-        return [encoder["PAD"]] + feature_to_pad + [encoder["PAD"]]
+        if 'O' in encoder:
+            return [encoder["O"]] + feature_to_pad + [encoder["O"]]
+        else:
+            return [encoder["PAD"]] + feature_to_pad + [encoder["PAD"]]
 
     def preprocess_dataset(self):
         """
@@ -237,9 +247,9 @@ class BertPrep(object):
 
         # get the sentences and the labels from the dataframe
         getter = SentenceGetter(self.data, self.lexicals)
-
+        self.sentences = getter.sentences
         # tokenize the words + duplicate the labels and lexical features
-        tokenized_texts, tags, lexicals = map(
+        tokenized_texts, tags, lexicals, token_ids = map(
             list,
             zip(
                 *[
@@ -248,7 +258,8 @@ class BertPrep(object):
                 ]
             ),
         )
-
+        
+        self.tokenized_texts = tokenized_texts
         # turn vars to numericals
         all_ids = [
             self.tokenizer.convert_tokens_to_ids(sent) for sent in tokenized_texts
@@ -263,21 +274,25 @@ class BertPrep(object):
         else:
             processed_lex = None
 
+        #TODO add markers which tokens were split by tokenizer
+
         # cut/pad the sequences & the bert markers
         for i in range(len(all_ids)):
 
             # cut until max length, minus 2 to make room for bert markers
             ids = all_ids[i][: self.max_len - 2]
             target_tag = all_target_tags[i][: self.max_len - 2]
-
+            sent_token_ids = token_ids[i][: self.max_len - 2]
             # bert markers and paddings for the rest
-            ids = [101] + ids + [102]
+            ids = [self.tokenizer.vocab['[CLS]']] + ids + [self.tokenizer.vocab['[SEP]']]
             target_tag = self.pad_start_end(self.tag2idx, target_tag)
+            sent_token_ids = self.pad_start_end(self.tag2idx, sent_token_ids)
 
             # pad shortened sequences
             padding_len = self.max_len - len(ids)
-            all_ids[i] = ids + ([0] * padding_len)
-            all_target_tags[i] = target_tag + ([self.tag2idx["PAD"]] * padding_len)
+            all_ids[i] = ids + ([self.tokenizer.vocab['[PAD]']] * padding_len)
+            all_target_tags[i] = target_tag + ([self.tag2idx["O"]] * padding_len)
+            token_ids[i] = sent_token_ids + ([self.tag2idx["O"]] * padding_len)
 
             # same 3 steps above, but for lexicals only
             if self.lexicals:
@@ -301,7 +316,8 @@ class BertPrep(object):
             "input_ids": all_ids,
             "attention_mask": attention_mask,
             "labels": all_target_tags,
-            "lexicals": processed_lex
+            "lexicals": processed_lex,
+            "token_ids" : token_ids
         }
 
 
