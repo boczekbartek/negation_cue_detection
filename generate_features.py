@@ -17,6 +17,7 @@ def linguistic_features(text):
     :rtype: strings
     :return: multiple strings containing the lemma, pos-tag, snowball-stem and porter-stem
     """
+    nlp = spacy.load("en_core_web_sm")
     doc=nlp(text)
     token=doc[0]
     return token.lemma_, token.pos_, snow.stem(text), port.stem(text)
