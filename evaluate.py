@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from feature_embeddings import BertPrep
-from main import BertForNegationCueClassification, NegCueDataset
+from train import BertForNegationCueClassification, NegCueDataset
 
 
 def evaluate(ckpt, dataset_file, error_analysis_fname, classification_metrics_fname):

@@ -93,6 +93,15 @@ class BertPrep(object):
         self.feature_labels = self.label_lexicals(lexicals)
         self.max_len = max_sent_len
         self.lexicals = lexicals
+        self.lexicals_vec_size = self.calculate_lexicals_size()
+
+    def calculate_lexicals_size(self):
+        if len(self.lexicals) == 0:
+            return 0
+        else:
+            return sum(
+                len(next(iter(v.values()))) for v in self.feature_labels.values()
+            )
 
     @staticmethod
     def load_data(path):
