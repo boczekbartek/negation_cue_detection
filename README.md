@@ -55,8 +55,8 @@ python run_evaluate.py
 
 ## Pre-trained models
 We include pre-trained models in the repository with [git-lfs](https://git-lfs.github.com).
-* Baseline model: [neg_cue_detection_baseline](neg_cue_detection_baseline)
-* Baseline+lexicals model: [neg_cue_detection_lex](neg_cue_detection_lex)
+* Baseline model: [neg_cue_detection_model_baseline](neg_cue_detection_model_baseline/)
+* Baseline+lexicals model: [neg_cue_detection_model_lex](neg_cue_detection_model_lex/)
 
 ## Results
 All results can be found in `reports/*metrics.txt` files.
