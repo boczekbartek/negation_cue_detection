@@ -1,0 +1,99 @@
+---------------------7--------------------------
+['do', 'you', 'say', 'nothing', 'has', 'come', 'out', 'of', 'that', 'room', '--', 'absolutely', 'nothing', '?', "''"]
+[-- -- -- -- -- -- -- -- -- -- -- 'absolutely' 'nothing' -- --]
+TRUE | ['O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'I-NEG', 'O', 'O']
+PRED | ['O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O']
+---------------------48--------------------------
+['the', 'laconic', 'style', 'may', 'be', 'to', 'conceal', 'the', 'absence', 'of', 'knowledge', 'of', 'english', '.']
+[-- -- -- -- -- -- -- -- 'absence' -- -- -- -- --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O']
+---------------------56--------------------------
+['but', 'surely', 'the', 'most', 'valuable', 'hunting-ground', 'that', 'ever', 'was', 'given', 'to', 'a', 'student', 'of', 'the', 'unusual', '!']
+[-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 'unusual' --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+---------------------57--------------------------
+['you', 'are', 'uneasy', ',', 'as', 'i', 'understand', ',', 'because', 'your', 'new', 'lodger', 'remains', 'in', 'his', 'rooms', 'and', 'you', 'can', 'not', 'see', 'him', '.']
+[-- -- 'uneasy' -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+ --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O']
+PRED | ['O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O']
+---------------------108--------------------------
+['``', 'i', "'ll", 'have', 'no', 'more', 'of', 'it', '!']
+[-- -- -- -- -- 'more' -- -- --]
+TRUE | ['O', 'O', 'O', 'O', 'B-NEG', 'I-NEG', 'O', 'O', 'O']
+PRED | ['O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O']
+---------------------197--------------------------
+['the', 'printed', 'messages', ',', 'as', 'is', 'now', 'evident', ',', 'were', 'to', 'prevent', 'her', 'sex', 'being', 'discovered', 'by', 'her', 'writing', '.']
+[-- -- -- -- -- -- -- -- -- -- -- 'prevent' -- -- -- -- -- -- -- --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+---------------------307--------------------------
+['`', 'if', 'not', ',', 'i', "'ll", 'have', 'no', 'more', 'to', 'do', 'with', 'you', '.', "'"]
+[-- -- 'not' -- -- -- -- -- 'more' -- -- -- -- -- --]
+TRUE | ['O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'B-NEG', 'I-NEG', 'O', 'O', 'O', 'O', 'O', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+---------------------339--------------------------
+['why', 'not', 'write', '?']
+[-- 'not' -- --]
+TRUE | ['O', 'O', 'O', 'O']
+PRED | ['O', 'B-NEG', 'O', 'O']
+---------------------348--------------------------
+['the', 'words', 'are', 'written', 'with', 'a', 'broad-pointed', ',', 'violet-tinted', 'pencil', 'of', 'a', 'not', 'unusual', 'pattern', '.']
+[-- -- -- -- -- -- -- -- -- -- -- -- -- 'unusual' -- --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'B-NEG', 'O', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O']
+---------------------372--------------------------
+['there', ',', 'dimly', 'outlined', 'at', 'the', 'top', 'window', ',', 'i', 'could', 'see', 'the', 'shadow', 'of', 'a', 'head', ',', 'a', 'woman', "'s", 'head', ',', 'gazing', 'tensely', ',', 'rigidly', ',', 'out', 'into', 'the', 'night', ',', 'waiting', 'with', 'breathless', 'suspense', 'for', 'the', 'renewal', 'of', 'that', 'interrupted', 'message', '.']
+[-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+ -- -- -- -- -- -- -- -- -- -- -- 'breathless' -- -- -- -- -- -- -- -- --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+---------------------377--------------------------
+['is', 'it', 'not', 'so', '?', "''"]
+[-- -- 'not' -- -- --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O']
+PRED | ['O', 'O', 'B-NEG', 'O', 'O', 'O']
+---------------------413--------------------------
+['she', 'spoke', 'in', 'rapid', 'and', 'fluent', 'but', 'very', 'unconventional', 'english', ',', 'which', ',', 'for', 'the', 'sake', 'of', 'clearness', ',', 'i', 'will', 'make', 'grammatical', '.']
+[-- -- -- -- -- -- -- -- 'unconventional' -- -- -- -- -- -- -- -- -- -- --
+ -- -- -- --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+---------------------433--------------------------
+['there', 'was', 'scarce', 'room', 'for', 'the', 'whirl', 'of', 'his', 'great', 'arms', 'as', 'he', 'talked', '.']
+[-- -- 'scarce' -- -- -- -- -- -- -- -- -- -- -- --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+PRED | ['O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+---------------------444--------------------------
+['at', 'first', 'i', 'thought', 'that', 'it', 'was', 'dislike', '.']
+[-- -- -- -- -- -- -- 'dislike' --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+---------------------445--------------------------
+['and', 'then', ',', 'gradually', ',', 'i', 'understood', 'that', 'it', 'was', 'more', 'than', 'dislike', '.']
+[-- -- -- -- -- -- -- -- -- -- -- -- 'dislike' --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+---------------------464--------------------------
+['he', 'struck', 'gennaro', 'senseless', 'and', 'fled', 'from', 'the', 'house', 'which', 'he', 'was', 'never', 'more', 'to', 'enter', '.']
+[-- -- -- 'senseless' -- -- -- -- -- -- -- -- -- 'more' -- -- --]
+TRUE | ['O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'I-NEG', 'O', 'O', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O']
+---------------------471--------------------------
+['he', 'had', 'refused', 'to', 'yield', 'to', 'threats', ',', 'and', 'he', 'had', 'handed', 'the', 'notices', 'to', 'the', 'police', '.']
+[-- -- 'refused' -- -- -- -- -- -- -- -- -- -- -- -- -- -- --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+PRED | ['O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+---------------------487--------------------------
+['gorgiano', 'had', 'his', 'private', 'reasons', 'for', 'vengeance', ',', 'but', 'in', 'any', 'case', 'we', 'knew', 'how', 'ruthless', ',', 'cunning', ',', 'and', 'untiring', 'he', 'could', 'be', '.']
+[-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 'untiring' --
+ -- -- --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O']
+---------------------555--------------------------
+['on', 'the', 'deal', 'boards', 'of', 'the', 'carpetless', 'floor', 'there', 'was', 'outlined', 'a', 'fresh', 'track', 'of', 'blood', '.']
+[-- -- -- -- -- -- 'carpetless' -- -- -- -- -- -- -- -- -- --]
+TRUE | ['O', 'O', 'O', 'O', 'O', 'O', 'B-NEG', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+PRED | ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']

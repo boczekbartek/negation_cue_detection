@@ -11,18 +11,40 @@ and
 https://github.com/abhishekkrthakur/bert-entity-extraction
 
 """
-from generate_features import generate_features
-from transformers import BertTokenizer
-from sklearn.preprocessing import OneHotEncoder
-import pandas as pd
 import numpy as np
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
+from transformers import BertTokenizer
 
+import config
+from generate_features import generate_features
 
-POS_TAGS = ['ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'CCONJ', 'DET', 'INTJ', 'NOUN', 'NUM',
-            'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X', 'SPACE']
+POS_TAGS = [
+    "ADJ",
+    "ADP",
+    "ADV",
+    "AUX",
+    "CONJ",
+    "CCONJ",
+    "DET",
+    "INTJ",
+    "NOUN",
+    "NUM",
+    "PART",
+    "PRON",
+    "PROPN",
+    "PUNCT",
+    "SCONJ",
+    "SYM",
+    "VERB",
+    "X",
+    "SPACE",
+]
 
 
 class SentenceGetter(object):
+    """ Transform CoNLL format (token level) data into sentence level data """
+
     def __init__(self, data, lexicals=None):
         self.n_sent = 1
         self.data = data
@@ -34,7 +56,7 @@ class SentenceGetter(object):
         self.sentences = [s for s in self.grouped]
 
     @staticmethod
-    def aggregate(s, lexicals: list = None):
+    def aggregate(s: pd.Series, lexicals: list = None) -> list:
         """
         Groups the Token, Tag, and lexical features per word in a sentence.
 
@@ -44,7 +66,7 @@ class SentenceGetter(object):
         sentence_feat = []
 
         # which features to extract
-        to_extract = [s["Token"].values.tolist(), s["tag"].values.tolist()]
+        to_extract = [s["token_lower"].values.tolist(), s["tag"].values.tolist()]
 
         if lexicals:
             to_extract.extend(s[lexical].values.tolist() for lexical in lexicals)
@@ -66,21 +88,35 @@ class SentenceGetter(object):
 
 # prepare sentences and labels for bert
 class BertPrep(object):
-    def __init__(self, path, lexicals=None, max_sent_len=95):
+    """ Preprocess data for BERT model -> attention mask, padding, encoding """
+
+    def __init__(self, path: str, lexicals: list = None, max_sent_len: int = 95):
+        """
+        :param path: path to CoNLL data
+        :param lexicals: list of lexical features to use
+        :oaram max_sent_len: crop sentences to this length
+        """
         # chose smallest pre-trained bert (uncased)
-        self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+        self.tokenizer = BertTokenizer.from_pretrained(config.PRETRAINED_MODEL)
         self.data = self.load_data(path)
-        self.tag2idx = {
-            'B-NEG' : 0,
-            'O' : 1,
-            'I-NEG' : 2
-        }
+        self.tag2idx = config.TAG2IDX
         self.feature_labels = self.label_lexicals(lexicals)
         self.max_len = max_sent_len
         self.lexicals = lexicals
+        self.lexicals_vec_size = self.calculate_lexicals_size()
+
+    def calculate_lexicals_size(self) -> int:
+        """ Calculate how long will be lexical features vector for each token """
+        if len(self.lexicals) == 0:
+            return 0
+        else:
+            return sum(
+                len(next(iter(v.values()))) for v in self.feature_labels.values()
+            )
 
     @staticmethod
-    def load_data(path):
+    def load_data(path: str) -> pd.DataFrame:
+        """ Load data """
         # check if the file contains the lexical features
         ext = path.split(".")[1]
 
@@ -88,21 +124,22 @@ class BertPrep(object):
         if ext == "txt":
             print("generating lexical features")
             data = pd.read_csv(
-                path, delimiter="\t",
-                names=["corpus", "n_sent", "n_word", "Token", "tag"]
+                path,
+                delimiter="\t",
+                names=["corpus", "n_sent", "n_word", "token", "tag"],
             )
             data = generate_features(data)
-            data.to_csv(path.split(".")[0] + "-features.csv", sep='\t')
-            print(f'new file with generated features saved as: '
-                  f'{path.split(".")[0] + "-features.csv"}')
+            data.to_csv(path.split(".")[0] + "-features.csv", sep="\t")
+            print(
+                f"new file with generated features saved as: "
+                f'{path.split(".")[0] + "-features.csv"}'
+            )
 
         else:
             # features are included in the csv :')
             data = pd.read_csv(path, delimiter="\t", header=0, index_col=0)
             data["sent_id"] = data["corpus"] + data["n_sent"].astype(str)
 
-        # do lowercase since 'uncased' model is used
-        data['Token'] = data['Token'].astype(str).apply(str.lower)
         return data
 
     def set_max_len(self, tokenized_texts):
@@ -119,7 +156,7 @@ class BertPrep(object):
         :return:
         """
         values = list(set(self.data[feature].values))
-        if feature != 'tag':
+        if feature != "tag":
             values.insert(0, "PAD")
 
         if scale:
@@ -136,17 +173,18 @@ class BertPrep(object):
 
         :return: dict of lexicals, containing dicts of value to numericals
         """
+
         def encode(feat):
-            enc = OneHotEncoder(handle_unknown='ignore', sparse=False)
-            if feat == 'Possible_Prefix' or feat == 'Possible_Suffix':
+            enc = OneHotEncoder(handle_unknown="ignore", sparse=False)
+            if feat == "possible_prefix" or feat == "possible_suffix":
                 v = [True, False]
-                one_hot = np.array([[1., 1.], [1., 0.], [0., 1.]])
+                one_hot = np.array([[1.0, 1.0], [1.0, 0.0], [0.0, 1.0]])
             else:
                 v = np.array(POS_TAGS)
                 one_hot = enc.fit_transform(v.reshape(len(v), 1))
 
             d = {label: one_hot[i] for i, label in enumerate(v)}
-            d['PAD'] = np.zeros(one_hot.shape[1])
+            d["PAD"] = np.zeros(one_hot.shape[1])
             return d
 
         if lexicals:
@@ -181,7 +219,7 @@ class BertPrep(object):
 
             # duplicate labels
             labels.extend(self.duplicate(label, n_subwords))
-            token_ids.extend(self.duplicate(i,n_subwords))
+            token_ids.extend(self.duplicate(i, n_subwords))
 
             if self.lexicals:
                 # duplicate lexicals
@@ -199,7 +237,7 @@ class BertPrep(object):
         duplicates = [label] * n_subwords
         return duplicates
 
-    def encode_lexicals(self, lexicals):
+    def encode_lexicals(self, lexicals) -> list:
         """
         (Nested loop of hell, i know, im sorry)
         BUT basically, loops to the lexical features per sentence, then encodes
@@ -228,12 +266,12 @@ class BertPrep(object):
         :param feature_to_pad:
         :return:
         """
-        if 'O' in encoder:
+        if "O" in encoder:
             return [encoder["O"]] + feature_to_pad + [encoder["O"]]
         else:
             return [encoder["PAD"]] + feature_to_pad + [encoder["PAD"]]
 
-    def preprocess_dataset(self):
+    def preprocess_dataset(self) -> dict:
         """
         1) Chops words up into Bert word pieces, duplicates the labels and lexical
            features with it.
@@ -258,7 +296,7 @@ class BertPrep(object):
                 ]
             ),
         )
-        
+
         self.tokenized_texts = tokenized_texts
         # turn vars to numericals
         all_ids = [
@@ -274,7 +312,7 @@ class BertPrep(object):
         else:
             processed_lex = None
 
-        #TODO add markers which tokens were split by tokenizer
+        # TODO add markers which tokens were split by tokenizer
 
         # cut/pad the sequences & the bert markers
         for i in range(len(all_ids)):
@@ -284,13 +322,15 @@ class BertPrep(object):
             target_tag = all_target_tags[i][: self.max_len - 2]
             sent_token_ids = token_ids[i][: self.max_len - 2]
             # bert markers and paddings for the rest
-            ids = [self.tokenizer.vocab['[CLS]']] + ids + [self.tokenizer.vocab['[SEP]']]
+            ids = (
+                [self.tokenizer.vocab["[CLS]"]] + ids + [self.tokenizer.vocab["[SEP]"]]
+            )
             target_tag = self.pad_start_end(self.tag2idx, target_tag)
             sent_token_ids = self.pad_start_end(self.tag2idx, sent_token_ids)
 
             # pad shortened sequences
             padding_len = self.max_len - len(ids)
-            all_ids[i] = ids + ([self.tokenizer.vocab['[PAD]']] * padding_len)
+            all_ids[i] = ids + ([self.tokenizer.vocab["[PAD]"]] * padding_len)
             all_target_tags[i] = target_tag + ([self.tag2idx["O"]] * padding_len)
             token_ids[i] = sent_token_ids + ([self.tag2idx["O"]] * padding_len)
 
@@ -304,10 +344,13 @@ class BertPrep(object):
                     lex: self.pad_start_end(self.feature_labels[lex], lex_features[lex])
                     for lex in all_lexicals[i].keys()
                 }
-                processed_lex.append([
-                    lex_features[lex] + ([self.feature_labels[lex]["PAD"]] * padding_len)
-                    for lex in all_lexicals[i].keys()
-                ])
+                processed_lex.append(
+                    [
+                        lex_features[lex]
+                        + ([self.feature_labels[lex]["PAD"]] * padding_len)
+                        for lex in all_lexicals[i].keys()
+                    ]
+                )
 
         # creating the attention mask
         attention_mask = [[float(i != 0.0) for i in ii] for ii in all_ids]
@@ -317,14 +360,5 @@ class BertPrep(object):
             "attention_mask": attention_mask,
             "labels": all_target_tags,
             "lexicals": processed_lex,
-            "token_ids" : token_ids
+            "token_ids": token_ids,
         }
-
-
-# if __name__ == "__main__":
-#     prep = BertPrep(
-#         "data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv",
-#         ["POS", "Possible_Prefix", "Possible_Suffix"]
-#     )
-#     processed = prep.preprocess_dataset()
-#     pass
