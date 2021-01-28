@@ -348,7 +348,7 @@ def train_lexicals_model():
     train(
         train_data="data/SEM-2012-SharedTask-CD-SCO-training-simple.v2-features.tsv",
         dev_data="data/SEM-2012-SharedTask-CD-SCO-dev-simple.v2-features.tsv",
-        model_name="neg_cue_detection_model_baseline",
+        model_name="neg_cue_detection_model_lex",
         epochs=EPOCHS,
         batch_size=BATCH_SIZE,
         seed=SEED,
