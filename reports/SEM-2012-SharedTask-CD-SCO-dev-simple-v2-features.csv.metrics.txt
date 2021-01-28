@@ -1,0 +1,16 @@
+--------- Post-processed Classification Report --------- 
+              precision    recall  f1-score   support
+
+       B-NEG     0.9405    0.8977    0.9186       176
+           O     0.9986    0.9993    0.9990     13388
+       I-NEG     1.0000    0.3333    0.5000         3
+
+    accuracy                         0.9979     13567
+   macro avg     0.9797    0.7435    0.8059     13567
+weighted avg     0.9978    0.9979    0.9978     13567
+
+--------- Post-processed Confustion Matrix --------- 
+{0: 'B-NEG', 1: 'O', 2: 'I-NEG'}
+[[  213    33     0]
+ [   16 14703     0]
+ [    1     1     1]]
