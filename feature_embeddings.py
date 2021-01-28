@@ -43,6 +43,8 @@ POS_TAGS = [
 
 
 class SentenceGetter(object):
+    """ Transform CoNLL format (token level) data into sentence level data """
+
     def __init__(self, data, lexicals=None):
         self.n_sent = 1
         self.data = data
@@ -54,7 +56,7 @@ class SentenceGetter(object):
         self.sentences = [s for s in self.grouped]
 
     @staticmethod
-    def aggregate(s, lexicals: list = None):
+    def aggregate(s: pd.Series, lexicals: list = None) -> list:
         """
         Groups the Token, Tag, and lexical features per word in a sentence.
 
@@ -86,7 +88,14 @@ class SentenceGetter(object):
 
 # prepare sentences and labels for bert
 class BertPrep(object):
-    def __init__(self, path, lexicals=None, max_sent_len=95):
+    """ Preprocess data for BERT model -> attention mask, padding, encoding """
+
+    def __init__(self, path: str, lexicals: list = None, max_sent_len: int = 95):
+        """
+        :param path: path to CoNLL data
+        :param lexicals: list of lexical features to use
+        :oaram max_sent_len: crop sentences to this length
+        """
         # chose smallest pre-trained bert (uncased)
         self.tokenizer = BertTokenizer.from_pretrained(config.PRETRAINED_MODEL)
         self.data = self.load_data(path)
@@ -96,7 +105,8 @@ class BertPrep(object):
         self.lexicals = lexicals
         self.lexicals_vec_size = self.calculate_lexicals_size()
 
-    def calculate_lexicals_size(self):
+    def calculate_lexicals_size(self) -> int:
+        """ Calculate how long will be lexical features vector for each token """
         if len(self.lexicals) == 0:
             return 0
         else:
@@ -105,7 +115,8 @@ class BertPrep(object):
             )
 
     @staticmethod
-    def load_data(path):
+    def load_data(path: str) -> pd.DataFrame:
+        """ Load data """
         # check if the file contains the lexical features
         ext = path.split(".")[1]
 
@@ -226,7 +237,7 @@ class BertPrep(object):
         duplicates = [label] * n_subwords
         return duplicates
 
-    def encode_lexicals(self, lexicals):
+    def encode_lexicals(self, lexicals) -> list:
         """
         (Nested loop of hell, i know, im sorry)
         BUT basically, loops to the lexical features per sentence, then encodes
@@ -260,7 +271,7 @@ class BertPrep(object):
         else:
             return [encoder["PAD"]] + feature_to_pad + [encoder["PAD"]]
 
-    def preprocess_dataset(self):
+    def preprocess_dataset(self) -> dict:
         """
         1) Chops words up into Bert word pieces, duplicates the labels and lexical
            features with it.

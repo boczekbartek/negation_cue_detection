@@ -21,7 +21,16 @@ from feature_embeddings import BertPrep
 
 
 class BertForNegationCueClassification(BertPreTrainedModel):
-    def __init__(self, cnf, n_lexicals=0):
+    """ 
+    Negation Cue Detection model that used pretrained BERT model. Can add additional lexical features to BERT embeddings
+    It performs Token Level Classification in Named-Entity-Recognition style task.
+    """
+
+    def __init__(self, cnf, n_lexicals: int=0):
+        """
+        :param n_lexicals: length of lexical features vector
+        :param cnf: interal huggingface cnf with model params
+        """
         super().__init__(cnf)
         self.cnf = cnf
         self.num_labels = cnf.num_labels
@@ -33,16 +42,16 @@ class BertForNegationCueClassification(BertPreTrainedModel):
 
     def forward(
         self,
-        input_ids=None,
-        lexical_features=None,
-        attention_mask=None,
-        token_type_ids=None,
-        return_dict=None,
-        labels=None,
+        input_ids: torch.Tensor = None,
+        lexical_features: torch.Tensor = None,
+        attention_mask: torch.Tensor = None,
+        token_type_ids: torch.Tensor = None,
+        return_dict: bool = None,
+        labels: torch.Tensor = None,
         device=None,
         *args,
         **kwargs,
-    ):
+    ) -> TokenClassifierOutput:
         return_dict = (
             return_dict if return_dict is not None else self.cnf.use_return_dict
         )
@@ -96,6 +105,8 @@ class BertForNegationCueClassification(BertPreTrainedModel):
 
 
 class NegCueDataset(Dataset):
+    """ Dataset with encoded features of negation cue detecton, handles masking of unused positions """
+
     def __init__(self, dataset: dict, n_lexicals: int = 0):
         self.n_lexicals = n_lexicals
         self.encodings = dataset["input_ids"]
@@ -146,8 +157,8 @@ def training_loop(
     train_data_loader: DataLoader,
     dev_data_loader: DataLoader,
     save_every_n_steps: int = 5000,
-):
-
+) -> BertForNegationCueClassification:
+    """ Perform a model trainig loop """
     model.to(device)
     start = time()
     for epoch in range(epochs):
@@ -240,16 +251,31 @@ def training_loop(
 
 
 def train(
-    train_data,
-    dev_data,
-    model_name,
-    epochs,
-    batch_size,
-    seed=None,
-    use_lexicals=False,
-    bert_model="bert-base-uncased",
-    num_warmup_steps=1e2,
-):
+    train_data: str,
+    dev_data: str,
+    model_name: str,
+    epochs: int,
+    batch_size: int,
+    seed: int = None,
+    use_lexicals: bool = False,
+    bert_model: str = "bert-base-uncased",
+    num_warmup_steps: float = 1e2,
+) -> None:
+    """
+    Main training function of Negation Cue Detection model 
+    
+    :param train_data: path to training data in CoNLL format
+    :param dev_data: path to dev data in CoNLL format
+    :param model_name: path to place where final model checkpoint will be saved
+    :param epochs: number of epochs of training
+    :param batch_size: batch size of data in training
+    :param seed: random seed, default=None
+    :param use_lexicals: set to True if you want to use pos, prefix and suffix features   
+    :param bert model: Name of BERT model checkpoint in HuggingFace repository
+    :param num_warmup_steps: Number of warmup steps of optimizer
+    
+    :return: None
+    """
     if seed is not None:
         random.seed(seed)
         np.random.seed(seed)
@@ -327,7 +353,7 @@ def train(
     tokenizer.save_pretrained(model_name)
 
 
-def train_baseline_model():
+def train_baseline_model() -> None:
     train(
         train_data=config.TRAIN_FEATURES,
         dev_data=config.DEV_FEATURES,
@@ -340,7 +366,7 @@ def train_baseline_model():
     )
 
 
-def train_lexicals_model():
+def train_lexicals_model() -> None:
     train(
         train_data=config.TRAIN_FEATURES,
         dev_data=config.DEV_FEATURES,

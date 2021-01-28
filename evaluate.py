@@ -13,7 +13,22 @@ from train import BertForNegationCueClassification, NegCueDataset
 import config
 
 
-def evaluate(ckpt, dataset_file, error_analysis_fname, classification_metrics_fname):
+def evaluate(
+    ckpt: str,
+    dataset_file: str,
+    error_analysis_fname: str,
+    classification_metrics_fname: str,
+) -> None:
+    """ 
+    Evaluate model checkpoint on given dataset. Perform postprocessig of predictions to match initial tokenization 
+    
+    :param ckpt: path to model checkpoint
+    :param dataset_file: path to dataset in CoNLL format
+    :param error_analysis_fname: path to file where error analysis data will be stored
+    :param classification_metrics_fname: path to file where classification metrics data will be stored
+
+    :return: None
+    """
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     lexicals = (
@@ -69,6 +84,7 @@ def evaluate(ckpt, dataset_file, error_analysis_fname, classification_metrics_fn
 
             token_ids = data["token_ids"].numpy().reshape(-1)[:end][1:]
 
+            # Glue tags that were extended because of tokenization.
             true_tag_parsed = []
             prev_id = None
             for label, tok_id in zip(true_sent_tags, token_ids):
