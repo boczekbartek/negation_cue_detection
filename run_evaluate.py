@@ -18,9 +18,9 @@ def run_evaluate():
         "neg_cue_detection_model_lex",
     ]
     datasets = [
-        "data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv",
-        "data/SEM-2012-SharedTask-CD-SCO-test-circle-features.csv",
-        "data/SEM-2012-SharedTask-CD-SCO-test-cardboard-features.csv",
+        "data/SEM-2012-SharedTask-CD-SCO-dev-simple.v2-features.tsv",
+        "data/SEM-2012-SharedTask-CD-SCO-test-circle-features.tsv",
+        "data/SEM-2012-SharedTask-CD-SCO-test-cardboard-features.tsv",
     ]
     reports_dir = "reports"
     logging.info(f"Reports directory: {reports_dir}")
@@ -28,7 +28,7 @@ def run_evaluate():
 
     for ckpt in checkpoints:
         for dataset in datasets:
-            lex = "_lex_" in ckpt
+            lex = "_lex" in ckpt
             error_analysis_file = f'{reports_dir}/{basename(dataset)}.{"lex." if lex else ""}error_analysis.txt'
             metrics_file = (
                 f'{reports_dir}/{basename(dataset)}.{"lex." if lex else ""}metrics.txt'

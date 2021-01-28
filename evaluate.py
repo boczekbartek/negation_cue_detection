@@ -15,13 +15,13 @@ def evaluate(ckpt, dataset_file, error_analysis_fname, classification_metrics_fn
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     lexicals = (
-        ["POS", "Possible_Prefix", "Possible_Suffix"]
+        ["pos", "possible_prefix", "possible_suffix"]
         if "_lex" in os.path.basename(ckpt)
         else []
     )
     # TODO this is stupid
     train_prep = BertPrep(
-        "data/SEM-2012-SharedTask-CD-SCO-training-simple-v2-features.csv", lexicals
+        "data/SEM-2012-SharedTask-CD-SCO-training-simple.v2-features.tsv", lexicals
     )
 
     n_lexicals = (
