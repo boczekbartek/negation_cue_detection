@@ -10,6 +10,8 @@ from tqdm import tqdm
 from feature_embeddings import BertPrep
 from train import BertForNegationCueClassification, NegCueDataset
 
+import config
+
 
 def evaluate(ckpt, dataset_file, error_analysis_fname, classification_metrics_fname):
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -20,17 +22,9 @@ def evaluate(ckpt, dataset_file, error_analysis_fname, classification_metrics_fn
         else []
     )
     # TODO this is stupid
-    train_prep = BertPrep(
-        "data/SEM-2012-SharedTask-CD-SCO-training-simple.v2-features.tsv", lexicals
-    )
+    train_prep = BertPrep(config.TRAIN_FEATURES, lexicals)
 
-    n_lexicals = (
-        0
-        if len(lexicals) == 0
-        else sum(
-            len(next(iter(v.values()))) for v in train_prep.feature_labels.values()
-        )
-    )
+    n_lexicals = train_prep.lexicals_vec_size
 
     logging.info(f"Using lexicals: {lexicals}.")
 

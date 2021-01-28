@@ -16,25 +16,20 @@ from transformers import (
 )
 from transformers.modeling_outputs import TokenClassifierOutput
 
+import config
 from feature_embeddings import BertPrep
-
-EPOCHS = 25
-BATCH_SIZE = 32
-SEED = 777
 
 
 class BertForNegationCueClassification(BertPreTrainedModel):
-    def __init__(self, config, n_lexicals=0):
-        super().__init__(config)
-        self.config = config
-        self.num_labels = config.num_labels
+    def __init__(self, cnf, n_lexicals=0):
+        super().__init__(cnf)
+        self.cnf = cnf
+        self.num_labels = cnf.num_labels
         self.n_lexicals = n_lexicals
 
-        self.bert = BertModel.from_pretrained("bert-base-uncased")
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(
-            config.hidden_size + self.n_lexicals, config.num_labels
-        )
+        self.bert = BertModel.from_pretrained(config.PRETRAINED_MODEL)
+        self.dropout = nn.Dropout(cnf.hidden_dropout_prob)
+        self.classifier = nn.Linear(cnf.hidden_size + self.n_lexicals, cnf.num_labels)
 
     def forward(
         self,
@@ -49,7 +44,7 @@ class BertForNegationCueClassification(BertPreTrainedModel):
         **kwargs,
     ):
         return_dict = (
-            return_dict if return_dict is not None else self.config.use_return_dict
+            return_dict if return_dict is not None else self.cnf.use_return_dict
         )
 
         outputs = self.bert(
@@ -334,29 +329,31 @@ def train(
 
 def train_baseline_model():
     train(
-        train_data="data/SEM-2012-SharedTask-CD-SCO-training-simple.v2-features.tsv",
-        dev_data="data/SEM-2012-SharedTask-CD-SCO-dev-simple.v2-features.tsv",
-        model_name="neg_cue_detection_model_baseline",
-        epochs=EPOCHS,
-        batch_size=BATCH_SIZE,
-        seed=SEED,
+        train_data=config.TRAIN_FEATURES,
+        dev_data=config.DEV_FEATURES,
+        model_name=config.BSL_MODEL_CKPT,
+        epochs=config.EPOCHS,
+        batch_size=config.BATCH_SIZE,
+        seed=config.SEED,
         use_lexicals=False,
+        bert_model=config.PRETRAINED_MODEL,
     )
 
 
 def train_lexicals_model():
     train(
-        train_data="data/SEM-2012-SharedTask-CD-SCO-training-simple.v2-features.tsv",
-        dev_data="data/SEM-2012-SharedTask-CD-SCO-dev-simple.v2-features.tsv",
-        model_name="neg_cue_detection_model_lex",
-        epochs=EPOCHS,
-        batch_size=BATCH_SIZE,
-        seed=SEED,
+        train_data=config.TRAIN_FEATURES,
+        dev_data=config.DEV_FEATURES,
+        model_name=config.LEX_MODEL_CKPT,
+        epochs=config.EPOCHS,
+        batch_size=config.BATCH_SIZE,
+        seed=config.SEED,
         use_lexicals=True,
+        bert_model=config.PRETRAINED_MODEL,
     )
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level="INFO", format="%(asctime)s: %(message)s")
+    logging.basicConfig(level=config.LOG_LEVEL, format="%(asctime)s: %(message)s")
     train_baseline_model()
     train_lexicals_model()

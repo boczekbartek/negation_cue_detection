@@ -5,6 +5,7 @@ import os
 from os.path import basename
 
 from evaluate import evaluate
+import config
 
 
 def run_evaluate():
@@ -15,15 +16,15 @@ def run_evaluate():
     Save evaluation and error analysis data to reports directory.
     """
     checkpoints = [
-        "neg_cue_detection_model_baseline",
-        "neg_cue_detection_model_lex",
+        config.BSL_MODEL_CKPT,
+        config.LEX_MODEL_CKPT,
     ]
     datasets = [
-        "data/SEM-2012-SharedTask-CD-SCO-dev-simple.v2-features.tsv",
-        "data/SEM-2012-SharedTask-CD-SCO-test-circle-features.tsv",
-        "data/SEM-2012-SharedTask-CD-SCO-test-cardboard-features.tsv",
+        config.DEV_FEATURES,
+        config.TEST_CIRCLE_FEATURES,
+        config.TEST_CARDBOARD_FEATURES,
     ]
-    reports_dir = "reports"
+    reports_dir = config.REPORTS_DIR
     logging.info(f"Reports directory: {reports_dir}")
     os.makedirs(reports_dir, exist_ok=True)
 
@@ -47,6 +48,6 @@ def run_evaluate():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level="INFO", format="%(asctime)s: %(message)s")
+    logging.basicConfig(level=config.LOG_LEVEL, format="%(asctime)s: %(message)s")
     run_evaluate()
 

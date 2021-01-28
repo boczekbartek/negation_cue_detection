@@ -11,12 +11,13 @@ and
 https://github.com/abhishekkrthakur/bert-entity-extraction
 
 """
-from generate_features import generate_features
-from transformers import BertTokenizer
-from sklearn.preprocessing import OneHotEncoder
-import pandas as pd
 import numpy as np
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
+from transformers import BertTokenizer
 
+import config
+from generate_features import generate_features
 
 POS_TAGS = [
     "ADJ",
@@ -87,9 +88,9 @@ class SentenceGetter(object):
 class BertPrep(object):
     def __init__(self, path, lexicals=None, max_sent_len=95):
         # chose smallest pre-trained bert (uncased)
-        self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+        self.tokenizer = BertTokenizer.from_pretrained(config.PRETRAINED_MODEL)
         self.data = self.load_data(path)
-        self.tag2idx = {"B-NEG": 0, "O": 1, "I-NEG": 2}
+        self.tag2idx = config.TAG2IDX
         self.feature_labels = self.label_lexicals(lexicals)
         self.max_len = max_sent_len
         self.lexicals = lexicals
@@ -350,12 +351,3 @@ class BertPrep(object):
             "lexicals": processed_lex,
             "token_ids": token_ids,
         }
-
-
-# if __name__ == "__main__":
-#     prep = BertPrep(
-#         "data/SEM-2012-SharedTask-CD-SCO-dev-simple-v2-features.csv",
-#         ["POS", "Possible_Prefix", "Possible_Suffix"]
-#     )
-#     processed = prep.preprocess_dataset()
-#     pass
