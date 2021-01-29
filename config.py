@@ -2,8 +2,8 @@
 # Paths to datasets
 DEV_DATA = "data/SEM-2012-SharedTask-CD-SCO-dev-simple.v2.txt"
 TRAIN_DATA = "data/SEM-2012-SharedTask-CD-SCO-training-simple.v2.txt"
-TEST_CIRCLE_DATA = "data/SEM-2012-SharedTask-CD-SCO-test-cardboard.txt"
-TEST_CARDBOARD_DATA = "data/SEM-2012-SharedTask-CD-SCO-test-circle.txt"
+TEST_CIRCLE_DATA = "data/SEM-2012-SharedTask-CD-SCO-test-circle.txt"
+TEST_CARDBOARD_DATA = "data/SEM-2012-SharedTask-CD-SCO-test-cardboard.txt"
 
 # -------------------- FEATURES ------------------
 # Paths to files with generated features
